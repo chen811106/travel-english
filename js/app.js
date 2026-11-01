@@ -26,6 +26,7 @@ const SITUATION_TABS = ['listen', 'shadow', 'pattern', 'quiz', 'roleplay'];
 const MIX_TABS = ['roleplay', 'quiz', 'shadow', 'pattern'];
 
 const PASS_SCORE = 60; // 實戰問答：60 分以上算店員聽得懂
+const RETRY_CODES = ['timeout', 'no-speech', 'mic-not-started']; // 這些錯誤顯示「再試一次」
 
 /* ---------------- 小工具 ---------------- */
 
@@ -340,15 +341,23 @@ const listeningHtml = () => `
     </div>
   </div>`;
 
+// 錄音紀錄（失敗時顯示，方便截圖回報問題）
+const diagHtml = () => `
+  <details class="diag">
+    <summary>🛠 錄音紀錄（一直失敗時，請截圖給開發者）</summary>
+    <pre>${esc(navigator.userAgent)}\n麥克風權限：${esc(speech.micPermission())}\n\n${esc(speech.getLog())}</pre>
+  </details>`;
+
 // 沒聽到聲音時，問要不要再試一次
 const retryHtml = (msg) => `
   <div class="retry">
     <p>🤔 ${esc(msg)}要再試一次嗎？</p>
-    <p class="muted">小提醒：按下按鈕後等半秒再開口，手機靠近嘴巴一點。</p>
+    <p class="muted">小提醒：聽完示範後，等聲音停了再按錄音；手機靠近嘴巴一點。</p>
     <button class="btn primary big block" data-retry>🎤 再試一次</button>
+    ${diagHtml()}
   </div>`;
 
-const errorHtml = (msg) => `<div class="notice warn"><p>⚠️ ${esc(msg)}</p></div>`;
+const errorHtml = (msg) => `<div class="notice warn"><p>⚠️ ${esc(msg)}</p>${diagHtml()}</div>`;
 
 /* =========================================================
  * 分頁：聽
@@ -553,7 +562,7 @@ function viewShadow(el, ctx) {
       status = 'result';
     } catch (err) {
       if (idx !== i || err.code === 'aborted') return;
-      status = ['timeout', 'no-speech'].includes(err.code) ? 'retry' : 'error';
+      status = RETRY_CODES.includes(err.code) ? 'retry' : 'error';
       message = err.message;
     }
     render();
@@ -890,7 +899,7 @@ function viewRoleplay(el, ctx) {
         status = 'result';
       } catch (err) {
         if (idx !== i || err.code === 'aborted') return;
-        status = ['timeout', 'no-speech'].includes(err.code) ? 'retry' : 'error';
+        status = RETRY_CODES.includes(err.code) ? 'retry' : 'error';
         message = err.message;
       }
       draw();

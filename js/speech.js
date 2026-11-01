@@ -85,6 +85,7 @@ export function pickVoice(role) {
 }
 
 let speakToken = 0; // 用來中斷「整段播放」
+let lastSpeakEnd = 0; // 上一次語音播放結束的時間（錄音前要讓喇叭先停下來）
 
 /**
  * 播放一句英文，回傳 Promise（播完才 resolve）
@@ -110,6 +111,7 @@ export function speak(text, { slow = false, role = 'staff', voiceId: forceId } =
       if (finished) return;
       finished = true;
       clearTimeout(timer);
+      lastSpeakEnd = Date.now();
       resolve(ok);
     };
     u.onend = () => done(true);
@@ -118,6 +120,7 @@ export function speak(text, { slow = false, role = 'staff', voiceId: forceId } =
     const timer = setTimeout(() => done(true), 2000 + text.length * (slow ? 160 : 100));
 
     // 先停掉正在播的；Chrome 在 cancel 後立刻 speak 偶爾會沒聲音，所以稍等一下
+    log('播放：' + text.slice(0, 24));
     if (synth.speaking || synth.pending) {
       synth.cancel();
       setTimeout(() => synth.speak(u), 80);
@@ -148,7 +151,10 @@ export async function speakAll(lines, { slow = false, onLine } = {}) {
 
 export function stopSpeaking() {
   speakToken++;
-  if (ttsSupported) synth.cancel();
+  if (ttsSupported) {
+    if (synth.speaking || synth.pending) lastSpeakEnd = Date.now();
+    synth.cancel();
+  }
 }
 
 /* ---------------- 語音辨識 STT ---------------- */
@@ -156,23 +162,55 @@ export function stopSpeaking() {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 export const sttSupported = !!SR;
 
-let current = null;
+/* ---------- 錄音紀錄（除錯用：失敗時畫面會顯示，方便截圖回報） ---------- */
+const logs = [];
+const logBase = Date.now();
+function log(msg) {
+  logs.push(`${((Date.now() - logBase) / 1000).toFixed(1)}s ${msg}`);
+  if (logs.length > 40) logs.shift();
+}
+export const getLog = () => logs.join('\n');
+export const micPermission = () => micState;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 建立帶有代碼的錯誤（app.js 用 code 判斷要不要顯示「再試一次」）
 function speechError(code) {
   const messages = {
     timeout: '好像沒有聽到你的聲音。',
     'no-speech': '好像沒有聽到你的聲音。',
-    'audio-capture': '找不到麥克風，請確認手機或電腦有麥克風。',
+    'mic-not-started': '麥克風沒有成功啟動。',
+    'audio-capture': '找不到麥克風，或麥克風正被其他 App 使用。',
     'not-allowed': '麥克風權限被拒絕了，請到瀏覽器設定允許使用麥克風。',
     'service-not-allowed': '這個瀏覽器不允許語音辨識，請換 Chrome 或 Safari 試試。',
     network: '語音辨識需要網路連線，請確認網路後再試。',
     unsupported: '你的瀏覽器不支援語音辨識。',
   };
-  const err = new Error(messages[code] || '辨識失敗，請再試一次。');
+  const err = new Error(messages[code] || `辨識失敗（${code}），請再試一次。`);
   err.code = code;
   return err;
 }
+
+/*
+ * 手機上常見的錄音問題與對策：
+ * 1. 剛播完示範語音就錄音 → 喇叭還沒切回麥克風，錄不到聲音。對策：先停播，等一下再開麥克風。
+ * 2. iPhone Safari 每次 new 一個辨識器，常常只有第一次有效。對策：重複使用同一個辨識器。
+ * 3. 上一次錄音還沒完全結束就開始下一次 → 衝突。對策：等上一次的 onend 再開始。
+ * 4. 麥克風沒真的啟動（沒有 onstart/onaudiostart）→ 自動換一個新的辨識器重試一次。
+ */
+let rec = null;      // 重複使用的辨識器
+let active = false;  // 是否有錄音正在進行（還沒收到 onend）
+let ended = null;    // 等待目前這次錄音結束的 Promise
+let sessionCount = 0;
+
+// 麥克風權限狀態：還沒允許時，第一次錄音會跳出詢問視窗，不能太快判定「沒啟動」
+let micState = 'unknown';
+navigator.permissions?.query({ name: 'microphone' })
+  .then((st) => {
+    micState = st.state;
+    st.onchange = () => (micState = st.state);
+  })
+  .catch(() => {});
 
 /**
  * 開始聽使用者說話
@@ -181,45 +219,108 @@ function speechError(code) {
  * - silenceMs 內完全沒聽到聲音 → 自動停止，回傳 code = 'timeout'（畫面會問要不要再試一次）
  * @returns {Promise<string[]>} 可能的辨識結果（最多 5 個）
  */
-export function listen({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
+export async function listen(opts = {}) {
+  if (!SR) throw speechError('unsupported');
+  log('--- 按下錄音 ---');
+
+  // 對策 1：示範語音還在播或剛播完，先停掉並等喇叭釋放
+  const ttsBusy = ttsSupported && (synth.speaking || synth.pending || Date.now() - lastSpeakEnd < 500);
+  stopSpeaking();
+
+  // 對策 3：上一次錄音還沒結束 → 先中止並等它結束（最多 1 秒，不行就換新的辨識器）
+  if (active) {
+    log('上一次錄音還沒結束，先停止');
+    try { rec.abort(); } catch {}
+    await Promise.race([ended, sleep(1000)]);
+    if (active) {
+      log('上一次錄音卡住，換新的辨識器');
+      rec = null;
+      active = false;
+    }
+  }
+  if (ttsBusy) {
+    log('等示範語音停止');
+    await sleep(450);
+  }
+
+  try {
+    return await session(opts);
+  } catch (err) {
+    // 對策 4：麥克風沒有啟動 → 換新的辨識器自動重試一次
+    if (err.code === 'mic-not-started') {
+      log('麥克風沒啟動，自動重試');
+      rec = null;
+      active = false;
+      await sleep(300);
+      return await session(opts);
+    }
+    throw err;
+  }
+}
+
+// 一次錄音
+function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
   return new Promise((resolve, reject) => {
-    if (!SR) return reject(speechError('unsupported'));
-    stopSpeaking();
-    abortListening();
+    const r = rec || (rec = new SR());
+    r.lang = 'en-US';
+    r.interimResults = true; // 邊講邊回傳結果
+    r.continuous = false;    // 講完一句就自動結束
+    r.maxAlternatives = 5;
 
-    const rec = new SR();
-    rec.lang = 'en-US';
-    rec.interimResults = true; // 邊講邊回傳結果
-    rec.continuous = false;    // 講完一句就自動結束
-    rec.maxAlternatives = 5;
-    current = rec;
-
+    const t0 = Date.now();
+    const my = ++sessionCount;
+    let started = false;
+    let heard = false;
     let finalAlts = null;
     let interim = '';
-    let heard = false;
     let settled = false;
+    let markEnded;
+    active = true;
+    ended = new Promise((res) => (markEnded = res));
 
     const finish = (fn, value) => {
       if (settled) return;
       settled = true;
+      clearTimeout(startTimer);
       clearTimeout(silenceTimer);
       clearTimeout(maxTimer);
-      if (current === rec) current = null;
       fn(value);
     };
 
-    // 太久沒聲音 → 停止並提示再試一次
-    const silenceTimer = setTimeout(() => {
-      if (heard) return;
-      finish(reject, speechError('timeout')); // 先記錄是逾時，再停止（避免被 aborted 蓋掉）
-      try { rec.abort(); } catch {}
-    }, silenceMs);
-    // 講太久 → 強制結束，用目前聽到的內容評分
-    const maxTimer = setTimeout(() => {
-      try { rec.stop(); } catch {}
-    }, maxMs);
+    // 麥克風一直沒啟動 → 判定失敗（listen 會自動重試）
+    // 已允許權限：等 3 秒；還沒允許：使用者可能正在看權限詢問視窗，等久一點
+    const startWait = micState === 'granted' ? 3000 : 20000;
+    const startTimer = setTimeout(() => {
+      if (started || heard) return;
+      log(`${startWait / 1000} 秒內麥克風沒有啟動`);
+      finish(reject, speechError('mic-not-started'));
+      try { r.abort(); } catch {}
+    }, startWait);
+    // 太久沒聲音 → 停止並提示再試一次（從麥克風開啟後開始計時）
+    let silenceTimer = null;
+    let maxTimer = null;
+    const onStarted = (what) => {
+      log(what);
+      if (started) return;
+      started = true;
+      silenceTimer = setTimeout(() => {
+        if (heard) return;
+        log('太久沒聽到聲音');
+        finish(reject, speechError('timeout')); // 先記錄是逾時，再停止（避免被 aborted 蓋掉）
+        try { r.abort(); } catch {}
+      }, silenceMs);
+      // 講太久 → 強制結束，用目前聽到的內容評分
+      maxTimer = setTimeout(() => {
+        log('錄音時間到，結束');
+        try { r.stop(); } catch {}
+      }, maxMs);
+    };
 
-    rec.onresult = (e) => {
+    r.onstart = () => onStarted('onstart 錄音開始');
+    r.onaudiostart = () => onStarted('麥克風開啟');
+    r.onspeechstart = () => log('偵測到說話');
+    r.onresult = (e) => {
+      if (settled) return;
       heard = true;
       let text = '';
       let allFinal = true;
@@ -236,35 +337,48 @@ export function listen({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
           finalAlts = [interim];
         }
       }
+      log(`${allFinal ? '結果' : '聽到'}：${interim.slice(0, 30)}`);
       onInterim?.(interim);
     };
-    rec.onerror = (e) => finish(reject, speechError(e.error));
-    rec.onend = () => {
+    r.onerror = (e) => {
+      log('錯誤：' + e.error);
+      finish(reject, speechError(e.error));
+    };
+    r.onend = () => {
+      log(`onend（${((Date.now() - t0) / 1000).toFixed(1)} 秒）`);
+      if (my === sessionCount) active = false; // 舊的錄音晚到的結束事件不影響新的
+      markEnded();
       if (finalAlts) finish(resolve, finalAlts);
       else if (interim) finish(resolve, [interim]);
+      else if (!started && Date.now() - t0 < 1500) finish(reject, speechError('mic-not-started')); // 一開始就結束
       else finish(reject, speechError('no-speech'));
     };
 
     try {
-      rec.start();
-    } catch {
-      finish(reject, speechError('start'));
+      r.start();
+      log('start()');
+    } catch (err) {
+      // 常見原因：上一次還沒結束（InvalidStateError）
+      log('start() 失敗：' + err.name);
+      active = false;
+      markEnded();
+      finish(reject, speechError('mic-not-started'));
     }
   });
 }
 
 // 手動停止錄音（會用目前聽到的內容評分）
 export function stopListening() {
-  if (current) {
-    try { current.stop(); } catch {}
+  if (active && rec) {
+    log('手動停止');
+    try { rec.stop(); } catch {}
   }
 }
 
-// 取消錄音（切換頁面時用）
+// 取消錄音（切換頁面、換句時用）
 export function abortListening() {
-  if (current) {
-    const rec = current;
-    current = null;
+  if (active && rec) {
+    log('取消錄音');
     try { rec.abort(); } catch {}
   }
 }
