@@ -259,12 +259,18 @@ export async function listen(opts = {}) {
 }
 
 // 一次錄音
-function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
+//
+// iPhone Safari 的特性：常常不會邊講邊回傳文字、也不會自己結束，
+// 要呼叫 stop()（結束並交出結果）才會給結果。所以：
+// - 時間到用 stop()，不要用 abort()（abort 會把聽到的內容丟掉）
+// - 有聽到文字後安靜 1.5 秒 → 主動 stop()，達成「講完自動結束」
+let requestStop = null; // 目前這次錄音的「結束並交出結果」
+function session({ onInterim, silenceMs = 8000, maxMs = 15000, quietMs = 1500 } = {}) {
   return new Promise((resolve, reject) => {
     const r = rec || (rec = new SR());
     r.lang = 'en-US';
-    r.interimResults = true; // 邊講邊回傳結果
-    r.continuous = false;    // 講完一句就自動結束
+    r.interimResults = true; // 邊講邊回傳結果（支援的瀏覽器）
+    r.continuous = false;    // 講完一句就結束
     r.maxAlternatives = 5;
 
     const t0 = Date.now();
@@ -274,6 +280,12 @@ function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
     let finalAlts = null;
     let interim = '';
     let settled = false;
+    let stopping = false;
+    let timedOut = false;
+    let silenceTimer = null;
+    let maxTimer = null;
+    let quietTimer = null;
+    let stopGuard = null;
     let markEnded;
     active = true;
     ended = new Promise((res) => (markEnded = res));
@@ -281,11 +293,31 @@ function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
     const finish = (fn, value) => {
       if (settled) return;
       settled = true;
-      clearTimeout(startTimer);
-      clearTimeout(silenceTimer);
-      clearTimeout(maxTimer);
+      [startTimer, silenceTimer, maxTimer, quietTimer, stopGuard].forEach(clearTimeout);
+      if (requestStop === stop) requestStop = null;
       fn(value);
     };
+
+    // 用目前拿到的內容收尾
+    const settleWithWhatWeHave = () => {
+      if (finalAlts && finalAlts.some((t) => t.trim())) finish(resolve, finalAlts.filter((t) => t.trim()));
+      else if (interim) finish(resolve, [interim]);
+      else finish(reject, speechError(timedOut ? 'timeout' : 'no-speech'));
+    };
+
+    // 結束並交出結果；2 秒內瀏覽器沒回應就強制收尾
+    function stop(why) {
+      if (stopping || settled) return;
+      stopping = true;
+      log(why);
+      try { r.stop(); } catch {}
+      stopGuard = setTimeout(() => {
+        log('stop 後沒有回應，強制結束');
+        try { r.abort(); } catch {}
+        settleWithWhatWeHave();
+      }, 2000);
+    }
+    requestStop = stop;
 
     // 麥克風一直沒啟動 → 判定失敗（listen 會自動重試）
     // 已允許權限：等 3 秒；還沒允許：使用者可能正在看權限詢問視窗，等久一點
@@ -296,29 +328,27 @@ function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
       finish(reject, speechError('mic-not-started'));
       try { r.abort(); } catch {}
     }, startWait);
-    // 太久沒聲音 → 停止並提示再試一次（從麥克風開啟後開始計時）
-    let silenceTimer = null;
-    let maxTimer = null;
+
     const onStarted = (what) => {
       log(what);
       if (started) return;
       started = true;
+      // 一直沒有收到文字 → 請瀏覽器結束並交出結果（iPhone 可能要這時候才給）
       silenceTimer = setTimeout(() => {
         if (heard) return;
-        log('太久沒聽到聲音');
-        finish(reject, speechError('timeout')); // 先記錄是逾時，再停止（避免被 aborted 蓋掉）
-        try { r.abort(); } catch {}
+        timedOut = true;
+        stop(`${silenceMs / 1000} 秒沒有收到文字，結束錄音並取得結果`);
       }, silenceMs);
-      // 講太久 → 強制結束，用目前聽到的內容評分
-      maxTimer = setTimeout(() => {
-        log('錄音時間到，結束');
-        try { r.stop(); } catch {}
-      }, maxMs);
+      // 講太久 → 結束，用目前聽到的內容評分
+      maxTimer = setTimeout(() => stop('錄音時間到，結束'), maxMs);
     };
 
     r.onstart = () => onStarted('onstart 錄音開始');
     r.onaudiostart = () => onStarted('麥克風開啟');
+    r.onsoundstart = () => log('收到聲音');
     r.onspeechstart = () => log('偵測到說話');
+    r.onspeechend = () => log('說話結束');
+    r.onnomatch = () => log('聽不出是什麼字（nomatch）');
     r.onresult = (e) => {
       if (settled) return;
       heard = true;
@@ -339,19 +369,24 @@ function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
       }
       log(`${allFinal ? '結果' : '聽到'}：${interim.slice(0, 30)}`);
       onInterim?.(interim);
+      // 有聽到內容後安靜一下 → 視為講完，主動結束
+      clearTimeout(quietTimer);
+      quietTimer = setTimeout(() => stop(`${quietMs / 1000} 秒沒有新內容，視為講完`), quietMs);
     };
     r.onerror = (e) => {
       log('錯誤：' + e.error);
+      // 我們自己 stop/abort 造成的錯誤，用已經拿到的內容收尾
+      if ((e.error === 'aborted' || e.error === 'no-speech') && (stopping || heard)) return settleWithWhatWeHave();
       finish(reject, speechError(e.error));
     };
     r.onend = () => {
       log(`onend（${((Date.now() - t0) / 1000).toFixed(1)} 秒）`);
       if (my === sessionCount) active = false; // 舊的錄音晚到的結束事件不影響新的
       markEnded();
-      if (finalAlts) finish(resolve, finalAlts);
-      else if (interim) finish(resolve, [interim]);
-      else if (!started && Date.now() - t0 < 1500) finish(reject, speechError('mic-not-started')); // 一開始就結束
-      else finish(reject, speechError('no-speech'));
+      if (!interim && !started && Date.now() - t0 < 1500) {
+        return finish(reject, speechError('mic-not-started')); // 一開始就結束
+      }
+      settleWithWhatWeHave();
     };
 
     try {
@@ -369,8 +404,8 @@ function session({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
 
 // 手動停止錄音（會用目前聽到的內容評分）
 export function stopListening() {
-  if (active && rec) {
-    log('手動停止');
+  if (requestStop) requestStop('按下「說完了」');
+  else if (active && rec) {
     try { rec.stop(); } catch {}
   }
 }

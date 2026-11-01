@@ -318,7 +318,7 @@ function helpHtml() {
       <ol>
         <li>按下 <b>🎤 錄音</b>。第一次會問能不能用麥克風，請按 <b>「允許」</b>。</li>
         <li>直接用英文說。<b>唸對的字會馬上變成綠色</b>。</li>
-        <li><b>講完停一下就會自動結束</b>，不用再按停止。</li>
+        <li><b>講完停一下就會自動結束</b>。也可以按「⏹ 說完了」馬上看結果（iPhone 建議直接按）。</li>
         <li>如果太久沒聽到聲音，會問你要不要 <b>再試一次</b>。</li>
         <li>手機靠近一點、在安靜的地方唸，分數會比較準。</li>
       </ol>
@@ -336,7 +336,8 @@ const listeningHtml = () => `
   <div class="listening">
     <span class="mic-dot"></span>
     <div>
-      <p><b>請開始說…</b> 講完停一下就會自動結束</p>
+      <p><b>🎙️ 錄音中，請開始說…</b></p>
+      <p class="muted">講完停一下會自動結束，也可以直接按上面的「⏹ 說完了」。</p>
       <p class="live" id="live"></p>
     </div>
   </div>`;
@@ -501,7 +502,7 @@ function viewShadow(el, ctx) {
           <button class="btn secondary big" id="demo">🔊 聽示範</button>
           ${speech.sttSupported
             ? `<button class="btn primary big ${status === 'listening' ? 'rec' : ''}" id="rec">${
-                status === 'listening' ? '⏹ 錄音中（按我提早結束）' : status === 'result' ? '🎤 再唸一次' : '🎤 錄音跟讀'}</button>`
+                status === 'listening' ? '⏹ 說完了（按這裡）' : status === 'result' ? '🎤 再唸一次' : '🎤 錄音跟讀'}</button>`
             : `<button class="btn primary big" id="self">✔ 我已跟著唸完</button>`}
         </div>
 
@@ -833,7 +834,7 @@ function viewRoleplay(el, ctx) {
 
           ${speech.sttSupported
             ? `<button class="btn primary huge ${status === 'listening' ? 'rec' : ''}" id="rec">${
-                status === 'listening' ? '⏹ 錄音中（按我提早結束）' : status === 'result' ? '🎤 再回答一次' : '🎤 換你回答'}</button>`
+                status === 'listening' ? '⏹ 說完了（按這裡）' : status === 'result' ? '🎤 再回答一次' : '🎤 換你回答'}</button>`
             : `${supportNotice()}<button class="btn primary big block" id="self">✔ 我說完了，看答案</button>`}
 
           <div id="status">${statusHtml()}</div>
