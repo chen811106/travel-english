@@ -21,32 +21,63 @@ if (ttsSupported) {
   synth.addEventListener?.('voiceschanged', loadVoices);
 }
 
-// 瀏覽器不會告訴我們語音是男是女，只能用各平台常見的語音名稱判斷
-// （iPhone／Mac、Android、Windows、Chrome 內建）
-const MALE = /\b(male|man|david|guy|mark|james|christopher|eric|roger|steffan|ryan|brian|andrew|alex|aaron|fred|daniel|arthur|gordon|oliver|tom|rishi|lee|evan|nathan|reed|rocko|grandpa|eddy)\b|en-us-x-(iol|iom|tpd)/i;
-const FEMALE = /\b(female|woman|samantha|aria|jenny|zira|susan|hazel|libby|sonia|emma|ava|allison|karen|moira|tessa|fiona|victoria|kate|serena|nicky|joelle|zoe|catherine|martha|shelley|sandy|flo|grandma)\b|google us english|en-us-x-(sfg|tpc|tpf|iob|iog)/i;
+// 瀏覽器不會告訴我們語音是男是女，只能用各平台常見的語音名稱猜
+// （iPhone／Mac、Android、Windows、Chrome 內建）；猜不準時使用者可以在「聲音設定」自己選
+const MALE = /\b(male|man|david|guy|mark|james|christopher|eric|roger|steffan|ryan|brian|andrew|alex|aaron|fred|ralph|albert|junior|daniel|arthur|gordon|oliver|tom|rishi|lee|evan|nathan|reed|rocko|grandpa|eddy)\b|en-us-x-(iol|iom|tpd)/i;
+const FEMALE = /\b(female|woman|samantha|aria|jenny|zira|susan|hazel|libby|sonia|emma|ava|allison|karen|moira|tessa|fiona|victoria|kate|kathy|serena|nicky|joelle|zoe|catherine|martha|shelley|sandy|flo|grandma)\b|google us english|en-us-x-(sfg|tpc|tpf|iob|iog)/i;
+// iPhone 的趣味／機器人語音，盡量不要選
+const NOVELTY = /\b(fred|ralph|albert|junior|kathy|bad news|good news|bahh|bells|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|deranged|hysterical|pipe organ|princess)\b/i;
 
-const isMale = (v) => MALE.test(v.name + ' ' + v.voiceURI) && !/female/i.test(v.name);
-const isFemale = (v) => FEMALE.test(v.name + ' ' + v.voiceURI);
+const label = (v) => v.name + ' ' + v.voiceURI;
+const isMale = (v) => MALE.test(label(v)) && !/female/i.test(v.name);
+const isFemale = (v) => FEMALE.test(label(v));
+
+// 每個語音的唯一代號（Android 上 voiceURI 可能重複，所以加上名稱和語言）
+const voiceId = (v) => `${v.voiceURI}|${v.name}|${v.lang}`;
+
+// 使用者在「聲音設定」選的語音（空字串＝自動）
+let prefs = { customer: '', staff: '' };
+export function setVoicePrefs(p) {
+  prefs = { ...prefs, ...p };
+}
+
+/** 列出這台裝置的英文語音（給聲音設定頁用） */
+export function listVoices() {
+  if (!voices.length) loadVoices();
+  return voices.map((v) => ({
+    id: voiceId(v),
+    name: v.name,
+    lang: v.lang,
+    gender: isMale(v) ? 'male' : isFemale(v) ? 'female' : '',
+  }));
+}
+
+/** 語音清單載入完成時通知（有些瀏覽器要等一下才拿得到） */
+export function onVoicesChanged(cb) {
+  synth?.addEventListener?.('voiceschanged', () => { loadVoices(); cb(); });
+}
 
 /**
  * 依角色挑英文語音
- * - customer（我）：男聲
- * - staff（店員等）：優先女聲，和「我」有明顯區別
- * 找不到對應的語音時，用音高調整（男聲調低）
+ * - 使用者有選 → 用選的
+ * - customer（我）：自動找男聲；找不到就把音高調低
+ * - staff（對方）：自動找女聲，和「我」有明顯區別
  * @returns {{voice: SpeechSynthesisVoice|null, pitch: number}}
  */
-function pickVoice(role) {
+export function pickVoice(role) {
   if (!voices.length) loadVoices();
-  // 美式英文優先，其次其他英文（英國、澳洲…）
-  const rank = (v) => (/en[-_]US/i.test(v.lang) ? 2 : 0) + (v.localService ? 1 : 0);
+  const chosen = prefs[role] && voices.find((v) => voiceId(v) === prefs[role]);
+  if (chosen) return { voice: chosen, pitch: 1.0 };
+
+  // 美式英文優先，其次其他英文；本機語音優先；趣味語音放最後
+  const rank = (v) => (/en[-_]US/i.test(v.lang) ? 2 : 0) + (v.localService ? 1 : 0) - (NOVELTY.test(label(v)) ? 5 : 0);
   const best = (list) => [...list].sort((a, b) => rank(b) - rank(a))[0] || null;
 
   if (role === 'customer') {
     const male = best(voices.filter(isMale));
     if (male) return { voice: male, pitch: 1.0 };
     // 沒有男聲：用預設語音，把音高調低聽起來像男生
-    return { voice: best(voices.filter((v) => !isFemale(v))) || best(voices), pitch: 0.7 };
+    return { voice: best(voices.filter((v) => !isFemale(v))) || best(voices), pitch: 0.6 };
   }
   const female = best(voices.filter(isFemale));
   if (female) return { voice: female, pitch: 1.0 };
@@ -58,15 +89,16 @@ let speakToken = 0; // 用來中斷「整段播放」
 /**
  * 播放一句英文，回傳 Promise（播完才 resolve）
  * @param {string} text
- * @param {{slow?: boolean, role?: string}} opt
+ * @param {{slow?: boolean, role?: string, voiceId?: string}} opt  voiceId：指定語音（試聽用）
  */
-export function speak(text, { slow = false, role = 'staff' } = {}) {
+export function speak(text, { slow = false, role = 'staff', voiceId: forceId } = {}) {
   return new Promise((resolve) => {
     if (!ttsSupported) return resolve(false);
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
     u.rate = slow ? RATE_SLOW : RATE_NORMAL;
-    const { voice, pitch } = pickVoice(role);
+    const forced = forceId && voices.find((v) => voiceId(v) === forceId);
+    const { voice, pitch } = forced ? { voice: forced, pitch: 1.0 } : pickVoice(role);
     if (voice) {
       u.voice = voice;
       u.lang = voice.lang;

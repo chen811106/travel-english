@@ -345,6 +345,19 @@ h1, h2, h3, h4, p { margin: 0; }
 .matched { font-size: 1.15rem; font-weight: 800; margin: 4px 0; }
 .quiz .btn.huge + .row, .quiz #rec { margin-top: 12px; }
 
+/* ---------- 聲音設定 ---------- */
+.voice-sec h2 { font-size: 1.15rem; }
+.voice-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.voice-row { display: flex; align-items: center; gap: 10px; border: 2px solid var(--line); border-radius: 14px; padding: 8px 10px; min-height: 60px; }
+.voice-row:has(input:checked) { border-color: var(--primary); background: #fff4ea; }
+.voice-row input { width: 24px; height: 24px; accent-color: var(--primary); flex: none; }
+.voice-name { flex: 1; font-weight: 700; display: flex; flex-direction: column; word-break: break-word; }
+.voice-name small { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+.g { border-radius: 99px; padding: 0 6px; background: #eee; }
+.g.male { background: #e3eeff; color: #2a64c0; }
+.g.female { background: #ffe3ee; color: #c02a64; }
+.play-voice { flex: none; width: 48px; height: 48px; border-radius: 50%; border: none; background: var(--secondary); color: #fff; font-size: 1.1rem; }
+
 /* 大螢幕：場景卡片排成 3 欄 */
 @media (min-width: 640px) {
   .scene-grid { grid-template-columns: repeat(3, 1fr); }

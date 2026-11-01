@@ -9,7 +9,7 @@
  *    2. 把 CACHE_VERSION 的數字加 1
  * ========================================================= */
 
-const CACHE_VERSION = 'travel-english-v3';
+const CACHE_VERSION = 'travel-english-v4';
 
 const APP_FILES = [
   './',
@@ -58,7 +58,8 @@ self.addEventListener('fetch', (event) => {
       const cache = await caches.open(CACHE_VERSION);
       try {
         const res = await Promise.race([
-          fetch(req),
+          // 每次都跟伺服器確認有沒有新版，更新才會立刻生效
+          fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
         ]);
         if (res && res.ok) event.waitUntil(cache.put(req, res.clone()));

@@ -118,7 +118,8 @@ async function router() {
 
   const [p0, sceneId, sitId, tab] = location.hash.replace(/^#\/?/, '').split('/');
   try {
-    if (p0 === 'scene' && sceneId && sitId) await renderSituation(sceneId, sitId, tab);
+    if (p0 === 'settings') renderSettings();
+    else if (p0 === 'scene' && sceneId && sitId) await renderSituation(sceneId, sitId, tab);
     else if (p0 === 'scene' && sceneId) await renderPicker(sceneId);
     else await renderHome();
   } catch (err) {
@@ -197,6 +198,7 @@ async function renderHome() {
             <span class="soon">即將推出</span>
           </div>`).join('')}
       </div>
+      <a class="btn ghost block" href="#/settings">🔊 聲音設定（選男聲／女聲）</a>
       ${supportNotice()}
     </main>`;
 }
@@ -935,8 +937,96 @@ function viewRoleplay(el, ctx) {
   render();
 }
 
+/* =========================================================
+ * 聲音設定：自己選「我」和「對方」用哪個語音
+ * ========================================================= */
+
+const SAMPLE = { customer: "Hi! Can I have a coke, please?", staff: 'Sure. Anything else?' };
+
+function applyVoicePrefs() {
+  speech.setVoicePrefs({ customer: store.getSetting('voiceMe') || '', staff: store.getSetting('voiceOther') || '' });
+}
+
+function renderSettings() {
+  const voices = speech.listVoices();
+  const tag = (g) => (g === 'male' ? '<span class="g male">👨 男聲</span>' : g === 'female' ? '<span class="g female">👩 女聲</span>' : '<span class="g">？</span>');
+  // 依男聲、女聲、不確定排序
+  const order = { male: 0, female: 1, '': 2 };
+  const sorted = [...voices].sort((a, b) => order[a.gender] - order[b.gender] || a.name.localeCompare(b.name));
+  const hasMale = voices.some((v) => v.gender === 'male');
+
+  const section = (role, setting, title) => {
+    const cur = store.getSetting(setting) || '';
+    const auto = speech.pickVoice(role);
+    const autoName = auto.voice ? auto.voice.name + (auto.pitch < 1 ? '（調低音高）' : '') : '裝置預設';
+    return `
+      <section class="card voice-sec" data-role="${role}" data-setting="${setting}">
+        <h2>${title}</h2>
+        <p class="muted">點「▶」試聽，選好按圓圈。</p>
+        <div class="voice-list">
+          <label class="voice-row">
+            <input type="radio" name="${setting}" value="" ${cur ? '' : 'checked'}>
+            <span class="voice-name">自動選擇<small>目前：${esc(autoName)}</small></span>
+            <button class="play-voice" data-id="" aria-label="試聽">▶</button>
+          </label>
+          ${sorted.map((v) => `
+            <label class="voice-row">
+              <input type="radio" name="${setting}" value="${esc(v.id)}" ${cur === v.id ? 'checked' : ''}>
+              <span class="voice-name">${esc(v.name)}<small>${esc(v.lang)} ${tag(v.gender)}</small></span>
+              <button class="play-voice" data-id="${esc(v.id)}" aria-label="試聽">▶</button>
+            </label>`).join('')}
+        </div>
+      </section>`;
+  };
+
+  app.innerHTML = `
+    <header class="topbar">
+      <a class="back" href="#/" aria-label="回首頁">‹</a>
+      <h1>🔊 聲音設定</h1>
+    </header>
+    <main class="page">
+      ${!voices.length ? '<div class="notice warn"><p>正在載入語音…如果一直沒出現，請重新整理頁面。</p></div>' : ''}
+      ${voices.length && !hasMale ? `
+        <div class="notice warn">
+          <p>⚠️ 你的手機沒有提供可以辨認的英文男聲（或語音名稱看不出男女），自動模式會把聲音調低來模擬男聲。</p>
+          <p>可以試聽下面每個語音，或先到手機下載男聲：</p>
+          <p><b>iPhone</b>：設定 → 輔助使用 → 朗讀內容 → 聲音 → 英文 → 下載「Aaron」</p>
+          <p><b>Android</b>：設定 → 搜尋「文字轉語音」→ Google 語音引擎的齒輪 → 安裝語音資料 → 英文（美國）→ 選男聲。<br>Android 的 Chrome 有時只讓網頁用「預設語音」，可以把預設改成男聲。</p>
+        </div>` : ''}
+      ${section('customer', 'voiceMe', '🙋 「我」的聲音')}
+      ${section('staff', 'voiceOther', '🧑‍💼 對方（店員等）的聲音')}
+      <p class="muted">共找到 ${voices.length} 個英文語音。</p>
+    </main>`;
+
+  app.querySelectorAll('.voice-sec').forEach((sec) => {
+    const role = sec.dataset.role;
+    const setting = sec.dataset.setting;
+    sec.querySelectorAll('input[type=radio]').forEach((r) =>
+      r.addEventListener('change', () => {
+        store.setSetting(setting, r.value);
+        applyVoicePrefs();
+        speech.stopSpeaking();
+        speech.speak(SAMPLE[role], { role, voiceId: r.value || undefined });
+      })
+    );
+    sec.querySelectorAll('.play-voice').forEach((b) =>
+      b.addEventListener('click', (e) => {
+        e.preventDefault(); // 試聽不要順便選取
+        speech.stopSpeaking();
+        speech.speak(SAMPLE[role], { role, voiceId: b.dataset.id || undefined });
+      })
+    );
+  });
+}
+
+// 語音清單晚到時，如果正在聲音設定頁就重畫
+speech.onVoicesChanged(() => {
+  if (location.hash.startsWith('#/settings')) renderSettings();
+});
+
 /* ---------------- 啟動 ---------------- */
 
+applyVoicePrefs();
 router();
 
 // 註冊 Service Worker（離線使用）
