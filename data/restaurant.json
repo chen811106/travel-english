@@ -1,0 +1,166 @@
+{
+  "id": "restaurant",
+  "title": "餐廳",
+  "roles": {
+    "staff": { "name": "店員", "emoji": "🧑‍🍳" },
+    "customer": { "name": "你", "emoji": "🙋" }
+  },
+  "situations": [
+    {
+      "id": "seat",
+      "title": "入座",
+      "emoji": "🪑",
+      "desc": "說幾位、有沒有訂位、等位子",
+      "dialogue": [
+        { "role": "staff", "en": "Hi! Welcome. How many people?", "zh": "你好！歡迎光臨。請問幾位？", "alts": ["Hello! Table for how many?", "How many are in your group?"] },
+        { "role": "customer", "en": "Two, please.", "zh": "兩位，謝謝。", "alts": ["A table for two, please.", "There are two of us."] },
+        { "role": "staff", "en": "Do you have a reservation?", "zh": "你有訂位嗎？", "alts": ["Did you book a table?"] },
+        { "role": "customer", "en": "No, we don't.", "zh": "沒有。", "alts": ["No, sorry. We didn't book."] },
+        { "role": "staff", "en": "OK. Please wait about ten minutes.", "zh": "好的，請等大約十分鐘。", "alts": ["There is a ten-minute wait."] },
+        { "role": "customer", "en": "Sure, we can wait.", "zh": "好，我們可以等。", "alts": ["OK, no problem."] },
+        { "role": "staff", "en": "Your table is ready. This way, please.", "zh": "你們的位子好了，這邊請。", "alts": ["Please follow me."] },
+        { "role": "customer", "en": "Thank you.", "zh": "謝謝。", "alts": ["Thanks!"] }
+      ],
+      "patterns": [
+        { "template": "A table for {}, please.", "zh": "請給我{}的位子。", "alts": ["Do you have a table for {}?"], "tip": "一進門就可以直接說人數。",
+          "options": [ { "en": "two", "zh": "兩個人" }, { "en": "three", "zh": "三個人" }, { "en": "four", "zh": "四個人" }, { "en": "one", "zh": "一個人" } ] },
+        { "template": "Can we sit {}?", "zh": "我們可以坐{}嗎？", "alts": ["Is it OK to sit {}?"], "tip": "想選座位的時候用。",
+          "options": [ { "en": "by the window", "zh": "靠窗" }, { "en": "outside", "zh": "外面" }, { "en": "over there", "zh": "那邊" }, { "en": "inside", "zh": "裡面" } ] },
+        { "template": "Do you have {}?", "zh": "你們有{}嗎？", "alts": ["Is there {}?"], "tip": "問店裡有沒有某樣東西。",
+          "options": [ { "en": "a menu in Chinese", "zh": "中文菜單" }, { "en": "a high chair", "zh": "兒童椅" }, { "en": "Wi-Fi", "zh": "無線網路" } ] }
+      ],
+      "questions": [
+        { "en": "How many people?", "alts": ["Table for how many?", "How many in your group?"],
+          "choices": ["請問幾位？", "你要點什麼？", "你要內用嗎？"], "answer": 0,
+          "replies": [ { "en": "Two, please.", "zh": "兩位，謝謝。", "alts": ["A table for two, please."] }, { "en": "Just one.", "zh": "只有我一個。", "alts": ["Only me."] } ] },
+        { "en": "Do you have a reservation?", "alts": ["Did you book a table?"],
+          "choices": ["你要看菜單嗎？", "你有訂位嗎？", "你要付現金嗎？"], "answer": 1,
+          "replies": [ { "en": "Yes, under Chen.", "zh": "有，用「陳」的名字訂的。", "alts": ["Yes, the name is Chen."] }, { "en": "No, we don't.", "zh": "沒有。", "alts": ["No, sorry."] } ] },
+        { "en": "Inside or outside?", "alts": ["Would you like to sit inside or outside?"],
+          "choices": ["內用還是外帶？", "要坐裡面還是外面？", "要冰的還是熱的？"], "answer": 1,
+          "replies": [ { "en": "Inside, please.", "zh": "裡面，謝謝。" }, { "en": "Outside, please.", "zh": "外面，謝謝。", "alts": ["Outside is fine."] } ] },
+        { "en": "Is this table OK?", "alts": ["How about this table?"],
+          "choices": ["這張桌子可以嗎？", "你要點什麼？", "好吃嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, it's great.", "zh": "可以，很好。", "alts": ["This is fine."] }, { "en": "Can we sit by the window?", "zh": "我們可以坐靠窗嗎？" } ] }
+      ]
+    },
+    {
+      "id": "order",
+      "title": "點餐",
+      "emoji": "📝",
+      "desc": "點主餐、飲料、特別要求",
+      "dialogue": [
+        { "role": "staff", "en": "Are you ready to order?", "zh": "你準備好點餐了嗎？", "alts": ["Can I take your order?", "What would you like?"] },
+        { "role": "customer", "en": "Yes. I'd like a chicken burger, please.", "zh": "好了。我想要一個雞肉漢堡，謝謝。", "alts": ["Can I have a chicken burger?", "I'll have a chicken burger, please."] },
+        { "role": "staff", "en": "Would you like fries with that?", "zh": "要加薯條嗎？", "alts": ["Do you want fries too?"] },
+        { "role": "customer", "en": "Yes, please.", "zh": "好，謝謝。", "alts": ["Sure."] },
+        { "role": "staff", "en": "What would you like to drink?", "zh": "你想喝什麼？", "alts": ["Anything to drink?"] },
+        { "role": "customer", "en": "Can I have an orange juice? No ice, please.", "zh": "我可以要一杯柳橙汁嗎？不要冰塊，謝謝。", "alts": ["An orange juice with no ice, please."] },
+        { "role": "staff", "en": "Sure. Anything else?", "zh": "好的。還需要別的嗎？", "alts": ["Is that all?"] },
+        { "role": "customer", "en": "No, that's all. Thank you.", "zh": "不用，這樣就好。謝謝。", "alts": ["That's it, thanks."] }
+      ],
+      "patterns": [
+        { "template": "Can I have {}?", "zh": "我可以要{}嗎？", "alts": ["Could I get {}?", "{}, please."], "tip": "最好用的點餐句！想要什麼就放進空格。",
+          "options": [ { "en": "a burger", "zh": "一個漢堡" }, { "en": "some water", "zh": "一些水" }, { "en": "a coke", "zh": "一杯可樂" }, { "en": "the menu", "zh": "菜單" } ] },
+        { "template": "I'd like {}, please.", "zh": "我想要{}，謝謝。", "alts": ["I'll have {}."], "tip": "I'd 就是 I would，聽起來很有禮貌。",
+          "options": [ { "en": "fried rice", "zh": "炒飯" }, { "en": "a salad", "zh": "一份沙拉" }, { "en": "a coffee", "zh": "一杯咖啡" }, { "en": "ice cream", "zh": "冰淇淋" } ] },
+        { "template": "No {}, please.", "zh": "請不要加{}。", "alts": ["Without {}, please."], "tip": "不吃某樣東西時，點餐後加這一句。",
+          "options": [ { "en": "ice", "zh": "冰塊" }, { "en": "onions", "zh": "洋蔥" }, { "en": "sugar", "zh": "糖" }, { "en": "cheese", "zh": "起司" }, { "en": "peanuts", "zh": "花生" } ] }
+      ],
+      "questions": [
+        { "en": "Are you ready to order?", "alts": ["Can I take your order?", "What can I get for you?"],
+          "choices": ["你準備好點餐了嗎？", "你要結帳了嗎？", "你吃飽了嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes. I'd like a burger, please.", "zh": "好了。我想要一個漢堡，謝謝。", "alts": ["Can I have a burger?"] }, { "en": "Not yet, please.", "zh": "還沒，請再等一下。", "alts": ["I need a few more minutes."] } ] },
+        { "en": "For here or to go?", "alts": ["Is this for here or to go?"],
+          "choices": ["要大杯還是小杯？", "內用還是外帶？", "現金還是刷卡？"], "answer": 1,
+          "replies": [ { "en": "For here, please.", "zh": "內用，謝謝。" }, { "en": "To go, please.", "zh": "外帶，謝謝。", "alts": ["Take away, please."] } ] },
+        { "en": "What would you like to drink?", "alts": ["Anything to drink?", "Something to drink?"],
+          "choices": ["你想喝什麼？", "你想吃什麼？", "你要冰的嗎？"], "answer": 0,
+          "replies": [ { "en": "Water, please.", "zh": "水，謝謝。" }, { "en": "Can I have a coke?", "zh": "我可以要一杯可樂嗎？", "alts": ["A coke, please."] } ] },
+        { "en": "Anything else?", "alts": ["Is that all?", "Would you like anything else?"],
+          "choices": ["好吃嗎？", "你要坐哪裡？", "還需要別的嗎？"], "answer": 2,
+          "replies": [ { "en": "No, that's all.", "zh": "不用，這樣就好。", "alts": ["That's it, thanks."] }, { "en": "Yes, a coffee, please.", "zh": "要，再一杯咖啡，謝謝。" } ] },
+        { "en": "What size?", "alts": ["Small, medium, or large?"],
+          "choices": ["要什麼大小？", "要什麼口味？", "要幾個？"], "answer": 0,
+          "replies": [ { "en": "Medium, please.", "zh": "中杯，謝謝。" }, { "en": "A large one, please.", "zh": "大的，謝謝。" } ] }
+      ]
+    },
+    {
+      "id": "recommend",
+      "title": "問推薦",
+      "emoji": "⭐",
+      "desc": "問招牌菜、口味、過敏",
+      "dialogue": [
+        { "role": "customer", "en": "Excuse me. What do you recommend?", "zh": "不好意思，你推薦什麼？", "alts": ["What's good here?", "What is popular here?"] },
+        { "role": "staff", "en": "Our beef noodles are very popular.", "zh": "我們的牛肉麵很受歡迎。", "alts": ["Many people like our beef noodles."] },
+        { "role": "customer", "en": "Is it spicy?", "zh": "會辣嗎？", "alts": ["Is it hot?"] },
+        { "role": "staff", "en": "A little. We can make it not spicy.", "zh": "有一點。我們可以做成不辣的。", "alts": ["Just a little spicy."] },
+        { "role": "customer", "en": "Does it have peanuts? I can't eat peanuts.", "zh": "裡面有花生嗎？我不能吃花生。", "alts": ["Does it have peanuts? I'm allergic to peanuts."] },
+        { "role": "staff", "en": "No, it doesn't have peanuts.", "zh": "沒有，裡面沒有花生。", "alts": ["There are no peanuts in it."] },
+        { "role": "customer", "en": "OK, I'll try it.", "zh": "好，我試試看。", "alts": ["OK, I'll have that."] }
+      ],
+      "patterns": [
+        { "template": "What do you recommend {}?", "zh": "{}你推薦什麼？", "alts": ["What is good {}?"], "tip": "不知道點什麼時，直接問店員最快！",
+          "options": [ { "en": "for lunch", "zh": "午餐" }, { "en": "for dessert", "zh": "甜點" }, { "en": "for kids", "zh": "小孩吃的" }, { "en": "to drink", "zh": "喝的" } ] },
+        { "template": "Is it {}?", "zh": "這個會{}嗎？", "alts": ["Is this {}?"], "tip": "問口味。",
+          "options": [ { "en": "spicy", "zh": "辣" }, { "en": "sweet", "zh": "甜" }, { "en": "salty", "zh": "鹹" }, { "en": "big", "zh": "很大份" } ] },
+        { "template": "Does it have {}?", "zh": "裡面有{}嗎？", "alts": ["Is there {} in it?"], "tip": "有不吃的東西，點之前先問。",
+          "options": [ { "en": "peanuts", "zh": "花生" }, { "en": "pork", "zh": "豬肉" }, { "en": "beef", "zh": "牛肉" }, { "en": "eggs", "zh": "蛋" } ] },
+        { "template": "I can't eat {}.", "zh": "我不能吃{}。", "alts": ["I'm allergic to {}."], "tip": "有過敏一定要說！allergic 是「過敏」。",
+          "options": [ { "en": "peanuts", "zh": "花生" }, { "en": "seafood", "zh": "海鮮" }, { "en": "eggs", "zh": "蛋" }, { "en": "milk", "zh": "牛奶" } ] }
+      ],
+      "questions": [
+        { "en": "Have you tried our beef noodles?", "alts": ["Do you want to try our beef noodles?"],
+          "choices": ["你吃過我們的牛肉麵嗎？", "牛肉麵賣完了", "牛肉麵要等多久？"], "answer": 0,
+          "replies": [ { "en": "No. Is it good?", "zh": "沒有，好吃嗎？" }, { "en": "Not yet. I'd like to try it.", "zh": "還沒，我想試試看。" } ] },
+        { "en": "Do you have any allergies?", "alts": ["Are you allergic to anything?"],
+          "choices": ["你有過敏嗎？", "你要加辣嗎？", "你有會員嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, I can't eat peanuts.", "zh": "有，我不能吃花生。", "alts": ["I'm allergic to peanuts."] }, { "en": "No, I don't.", "zh": "沒有。" } ] },
+        { "en": "How spicy do you want it?", "alts": ["Mild, medium, or hot?"],
+          "choices": ["你要多辣？", "你要多大份？", "你要幾個？"], "answer": 0,
+          "replies": [ { "en": "Not spicy, please.", "zh": "不要辣，謝謝。", "alts": ["No spice, please."] }, { "en": "A little spicy, please.", "zh": "小辣，謝謝。" } ] },
+        { "en": "It's our most popular dish.", "alts": ["Everyone loves this one."],
+          "choices": ["這是我們最受歡迎的菜", "這道菜很貴", "這道菜賣完了"], "answer": 0,
+          "replies": [ { "en": "OK, I'll try it.", "zh": "好，我試試看。", "alts": ["Sounds good!"] }, { "en": "Is it spicy?", "zh": "會辣嗎？" } ] }
+      ]
+    },
+    {
+      "id": "pay",
+      "title": "結帳",
+      "emoji": "💳",
+      "desc": "買單、付款、打包",
+      "dialogue": [
+        { "role": "customer", "en": "Excuse me. Check, please.", "zh": "不好意思，請幫我結帳。", "alts": ["Can I have the bill, please?", "Can I pay now?"] },
+        { "role": "staff", "en": "Sure. Together or separate?", "zh": "好的。一起付還是分開付？", "alts": ["One bill or separate bills?"] },
+        { "role": "customer", "en": "Together, please.", "zh": "一起，謝謝。", "alts": ["One bill, please."] },
+        { "role": "staff", "en": "That's twenty-five dollars.", "zh": "一共是二十五元。", "alts": ["Your total is twenty-five dollars."] },
+        { "role": "customer", "en": "Can I pay by card?", "zh": "可以刷卡嗎？", "alts": ["Do you take credit cards?"] },
+        { "role": "staff", "en": "Yes, of course.", "zh": "可以，當然。" },
+        { "role": "customer", "en": "Can I get a box for this?", "zh": "可以給我一個盒子打包嗎？", "alts": ["Can I take this to go?"] },
+        { "role": "customer", "en": "Thank you. It was delicious!", "zh": "謝謝，很好吃！", "alts": ["Thanks, the food was great!"] }
+      ],
+      "patterns": [
+        { "template": "Can I pay {}?", "zh": "我可以{}嗎？", "tip": "問能不能用某種方式付錢。",
+          "options": [ { "en": "by card", "zh": "刷卡" }, { "en": "in cash", "zh": "付現金" }, { "en": "with my phone", "zh": "用手機付款" }, { "en": "separately", "zh": "分開付" } ] },
+        { "template": "Can I get {}?", "zh": "可以給我{}嗎？", "alts": ["Could I have {}?"], "tip": "想要什麼東西都可以用。",
+          "options": [ { "en": "the check", "zh": "帳單" }, { "en": "a box", "zh": "打包盒" }, { "en": "a receipt", "zh": "收據" }, { "en": "a bag", "zh": "袋子" } ] },
+        { "template": "{}, please.", "zh": "{}，謝謝。", "tip": "最簡單的萬用句：東西 + please。",
+          "options": [ { "en": "Check", "zh": "結帳" }, { "en": "Together", "zh": "一起付" }, { "en": "Separate checks", "zh": "分開付" } ] }
+      ],
+      "questions": [
+        { "en": "Together or separate?", "alts": ["One bill or separate bills?"],
+          "choices": ["一起付還是分開付？", "內用還是外帶？", "要收據嗎？"], "answer": 0,
+          "replies": [ { "en": "Together, please.", "zh": "一起，謝謝。" }, { "en": "Separate, please.", "zh": "分開，謝謝。", "alts": ["We'll pay separately."] } ] },
+        { "en": "Cash or card?", "alts": ["How would you like to pay?"],
+          "choices": ["要收據嗎？", "付現金還是刷卡？", "內用還是外帶？"], "answer": 1,
+          "replies": [ { "en": "Card, please.", "zh": "刷卡，謝謝。", "alts": ["By card."] }, { "en": "Cash.", "zh": "付現金。", "alts": ["I'll pay in cash."] } ] },
+        { "en": "Do you need a receipt?", "alts": ["Would you like a receipt?"],
+          "choices": ["你需要收據嗎？", "你需要袋子嗎？", "你需要叉子嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, please.", "zh": "要，謝謝。" }, { "en": "No, thank you.", "zh": "不用，謝謝。", "alts": ["No, thanks."] } ] },
+        { "en": "How was everything?", "alts": ["Did you enjoy your meal?"],
+          "choices": ["餐點還可以嗎？", "一共多少錢？", "你從哪裡來？"], "answer": 0,
+          "replies": [ { "en": "It was great, thank you!", "zh": "很好吃，謝謝！", "alts": ["It was delicious!"] }, { "en": "Very good.", "zh": "非常好。" } ] }
+      ]
+    }
+  ]
+}

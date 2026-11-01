@@ -109,69 +109,113 @@ export const sttSupported = !!SR;
 
 let current = null;
 
+// 建立帶有代碼的錯誤（app.js 用 code 判斷要不要顯示「再試一次」）
+function speechError(code) {
+  const messages = {
+    timeout: '好像沒有聽到你的聲音。',
+    'no-speech': '好像沒有聽到你的聲音。',
+    'audio-capture': '找不到麥克風，請確認手機或電腦有麥克風。',
+    'not-allowed': '麥克風權限被拒絕了，請到瀏覽器設定允許使用麥克風。',
+    'service-not-allowed': '這個瀏覽器不允許語音辨識，請換 Chrome 或 Safari 試試。',
+    network: '語音辨識需要網路連線，請確認網路後再試。',
+    unsupported: '你的瀏覽器不支援語音辨識。',
+  };
+  const err = new Error(messages[code] || '辨識失敗，請再試一次。');
+  err.code = code;
+  return err;
+}
+
 /**
- * 開始聽使用者說話，回傳 Promise<string[]>（可能的辨識結果，最多 5 個）
- * 失敗時 reject，error.message 是中文說明
+ * 開始聽使用者說話
+ * - 說話的同時會一直呼叫 onInterim(目前聽到的文字)，用來即時把唸對的字變綠
+ * - 講完停一下，瀏覽器會自動結束，不用按停止
+ * - silenceMs 內完全沒聽到聲音 → 自動停止，回傳 code = 'timeout'（畫面會問要不要再試一次）
+ * @returns {Promise<string[]>} 可能的辨識結果（最多 5 個）
  */
-export function listen() {
+export function listen({ onInterim, silenceMs = 8000, maxMs = 15000 } = {}) {
   return new Promise((resolve, reject) => {
-    if (!SR) return reject(new Error('你的瀏覽器不支援語音辨識。'));
+    if (!SR) return reject(speechError('unsupported'));
     stopSpeaking();
+    abortListening();
+
     const rec = new SR();
     rec.lang = 'en-US';
-    rec.interimResults = false;
-    rec.continuous = false;
+    rec.interimResults = true; // 邊講邊回傳結果
+    rec.continuous = false;    // 講完一句就自動結束
     rec.maxAlternatives = 5;
     current = rec;
 
-    let got = false;
+    let finalAlts = null;
+    let interim = '';
+    let heard = false;
+    let settled = false;
+
+    const finish = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(silenceTimer);
+      clearTimeout(maxTimer);
+      if (current === rec) current = null;
+      fn(value);
+    };
+
+    // 太久沒聲音 → 停止並提示再試一次
+    const silenceTimer = setTimeout(() => {
+      if (heard) return;
+      finish(reject, speechError('timeout')); // 先記錄是逾時，再停止（避免被 aborted 蓋掉）
+      try { rec.abort(); } catch {}
+    }, silenceMs);
+    // 講太久 → 強制結束，用目前聽到的內容評分
+    const maxTimer = setTimeout(() => {
+      try { rec.stop(); } catch {}
+    }, maxMs);
+
     rec.onresult = (e) => {
-      got = true;
-      const res = e.results[0];
-      const alts = [];
-      for (let i = 0; i < res.length; i++) alts.push(res[i].transcript);
-      resolve(alts);
+      heard = true;
+      let text = '';
+      let allFinal = true;
+      for (let i = 0; i < e.results.length; i++) {
+        text += e.results[i][0].transcript + ' ';
+        if (!e.results[i].isFinal) allFinal = false;
+      }
+      interim = text.trim();
+      if (allFinal) {
+        if (e.results.length === 1) {
+          finalAlts = [];
+          for (let k = 0; k < e.results[0].length; k++) finalAlts.push(e.results[0][k].transcript);
+        } else {
+          finalAlts = [interim];
+        }
+      }
+      onInterim?.(interim);
     };
-    rec.onerror = (e) => {
-      got = true;
-      const msg =
-        {
-          'no-speech': '沒有聽到聲音，請靠近麥克風再唸一次。',
-          'audio-capture': '找不到麥克風，請確認手機或電腦有麥克風。',
-          'not-allowed': '麥克風權限被拒絕了，請到瀏覽器設定允許使用麥克風。',
-          'service-not-allowed': '這個瀏覽器不允許語音辨識，請換 Chrome 或 Safari 試試。',
-          network: '語音辨識需要網路連線，請確認網路後再試。',
-          aborted: '已停止錄音。',
-        }[e.error] || '辨識失敗，請再試一次。';
-      reject(new Error(msg));
-    };
+    rec.onerror = (e) => finish(reject, speechError(e.error));
     rec.onend = () => {
-      current = null;
-      if (!got) reject(new Error('沒有聽清楚，請再唸一次。'));
+      if (finalAlts) finish(resolve, finalAlts);
+      else if (interim) finish(resolve, [interim]);
+      else finish(reject, speechError('no-speech'));
     };
+
     try {
       rec.start();
-    } catch (err) {
-      reject(new Error('無法開始錄音，請再按一次。'));
+    } catch {
+      finish(reject, speechError('start'));
     }
   });
 }
 
-// 手動停止錄音（會觸發 onresult 或 onend）
+// 手動停止錄音（會用目前聽到的內容評分）
 export function stopListening() {
   if (current) {
-    try {
-      current.stop();
-    } catch {}
+    try { current.stop(); } catch {}
   }
 }
 
 // 取消錄音（切換頁面時用）
 export function abortListening() {
   if (current) {
-    try {
-      current.abort();
-    } catch {}
+    const rec = current;
     current = null;
+    try { rec.abort(); } catch {}
   }
 }

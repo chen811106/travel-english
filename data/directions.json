@@ -1,0 +1,128 @@
+{
+  "id": "directions",
+  "title": "問路",
+  "roles": {
+    "staff": { "name": "路人", "emoji": "🧑" },
+    "customer": { "name": "你", "emoji": "🙋" }
+  },
+  "situations": [
+    {
+      "id": "way",
+      "title": "問怎麼走",
+      "emoji": "🗺️",
+      "desc": "問地點、聽懂左轉右轉",
+      "dialogue": [
+        { "role": "customer", "en": "Excuse me. Where is the train station?", "zh": "不好意思，請問火車站在哪裡？", "alts": ["How do I get to the train station?", "Can you tell me the way to the train station?"] },
+        { "role": "staff", "en": "Go straight and turn left at the corner.", "zh": "直走，在轉角左轉。", "alts": ["Walk straight, then turn left at the corner."] },
+        { "role": "customer", "en": "Is it far from here?", "zh": "離這裡遠嗎？", "alts": ["How far is it?"] },
+        { "role": "staff", "en": "No, it's about five minutes on foot.", "zh": "不遠，走路大約五分鐘。", "alts": ["It's a five-minute walk."] },
+        { "role": "customer", "en": "Can you show me on the map?", "zh": "可以在地圖上指給我看嗎？", "alts": ["Could you show me on my phone?"] },
+        { "role": "staff", "en": "Sure. We are here, and the station is here.", "zh": "當然。我們在這裡，車站在這裡。" },
+        { "role": "customer", "en": "Thank you so much!", "zh": "非常謝謝你！", "alts": ["Thanks for your help!"] }
+      ],
+      "patterns": [
+        { "template": "Where is {}?", "zh": "{}在哪裡？", "alts": ["How do I get to {}?"], "tip": "問路最基本的一句。",
+          "options": [ { "en": "the train station", "zh": "火車站" }, { "en": "the bus stop", "zh": "公車站" }, { "en": "the museum", "zh": "博物館" }, { "en": "the nearest restroom", "zh": "最近的廁所" } ] },
+        { "template": "Is there {} near here?", "zh": "這附近有{}嗎？", "alts": ["Where can I find {}?"], "tip": "找附近有沒有某種店。",
+          "options": [ { "en": "a convenience store", "zh": "便利商店" }, { "en": "an ATM", "zh": "提款機" }, { "en": "a pharmacy", "zh": "藥局" }, { "en": "a subway station", "zh": "地鐵站" } ] },
+        { "template": "Do I turn {}?", "zh": "我要{}嗎？", "alts": ["Should I turn {}?"], "tip": "確認方向有沒有聽對。",
+          "options": [ { "en": "left", "zh": "左轉" }, { "en": "right", "zh": "右轉" }, { "en": "at the corner", "zh": "在轉角轉" }, { "en": "at the traffic light", "zh": "在紅綠燈轉" } ] }
+      ],
+      "questions": [
+        { "en": "Go straight and turn right.", "alts": ["Walk straight, then turn right."],
+          "choices": ["直走然後右轉", "直走然後左轉", "往回走然後右轉"], "answer": 0,
+          "replies": [ { "en": "Go straight and turn right. Thanks!", "zh": "直走然後右轉，謝謝！" }, { "en": "Sorry, can you say that again?", "zh": "不好意思，可以再說一次嗎？", "alts": ["Could you speak more slowly?"] } ] },
+        { "en": "It's next to the bank.", "alts": ["It's beside the bank."],
+          "choices": ["在銀行旁邊", "在銀行對面", "在銀行裡面"], "answer": 0,
+          "replies": [ { "en": "Next to the bank. Thank you!", "zh": "在銀行旁邊，謝謝！" }, { "en": "Where is the bank?", "zh": "銀行在哪裡？" } ] },
+        { "en": "It's across the street.", "alts": ["It's on the other side of the street."],
+          "choices": ["在對街", "在這條街的盡頭", "在轉角"], "answer": 0,
+          "replies": [ { "en": "OK, thank you.", "zh": "好的，謝謝。" }, { "en": "Do I cross here?", "zh": "我要在這裡過馬路嗎？" } ] },
+        { "en": "It's about ten minutes on foot.", "alts": ["It's a ten-minute walk."],
+          "choices": ["走路大約十分鐘", "坐車大約十分鐘", "十分鐘後關門"], "answer": 0,
+          "replies": [ { "en": "Great, thanks!", "zh": "太好了，謝謝！" }, { "en": "Can I take a bus?", "zh": "可以搭公車嗎？" } ] },
+        { "en": "Where do you want to go?", "alts": ["Where are you going?"],
+          "choices": ["你要去哪裡？", "你從哪裡來？", "你要買什麼？"], "answer": 0,
+          "replies": [ { "en": "I want to go to the museum.", "zh": "我想去博物館。", "alts": ["I'm looking for the museum."] }, { "en": "I'm looking for this place.", "zh": "我在找這個地方。（給對方看手機）" } ] }
+      ]
+    },
+    {
+      "id": "transit",
+      "title": "搭地鐵公車",
+      "emoji": "🚇",
+      "desc": "買票、搭哪條線、換車",
+      "roles": { "staff": { "name": "站務人員", "emoji": "🧑‍💼" } },
+      "dialogue": [
+        { "role": "customer", "en": "Excuse me. Which train goes to the airport?", "zh": "不好意思，哪一班車到機場？", "alts": ["How do I get to the airport by train?"] },
+        { "role": "staff", "en": "Take the blue line.", "zh": "搭藍線。", "alts": ["You need the blue line."] },
+        { "role": "customer", "en": "Where can I buy a ticket?", "zh": "我可以在哪裡買票？", "alts": ["Where is the ticket machine?"] },
+        { "role": "staff", "en": "You can use the machine over there.", "zh": "你可以用那邊的機器。" },
+        { "role": "customer", "en": "How many stops is it?", "zh": "要坐幾站？", "alts": ["How many stations?"] },
+        { "role": "staff", "en": "Six stops.", "zh": "六站。", "alts": ["It's six stops from here."] },
+        { "role": "customer", "en": "Do I need to change trains?", "zh": "我需要換車嗎？", "alts": ["Do I have to transfer?"] },
+        { "role": "staff", "en": "No, it's a direct train.", "zh": "不用，是直達車。", "alts": ["No, you don't."] }
+      ],
+      "patterns": [
+        { "template": "Which train goes to {}?", "zh": "哪一班車到{}？", "alts": ["Does this train go to {}?"], "tip": "不知道搭哪班車時問。",
+          "options": [ { "en": "the airport", "zh": "機場" }, { "en": "the city center", "zh": "市中心" }, { "en": "Central Station", "zh": "中央車站" }, { "en": "the zoo", "zh": "動物園" } ] },
+        { "template": "Where can I buy {}?", "zh": "我可以在哪裡買{}？", "alts": ["Where do I get {}?"], "tip": "找買票的地方。",
+          "options": [ { "en": "a ticket", "zh": "車票" }, { "en": "a day pass", "zh": "一日券" }, { "en": "a transport card", "zh": "交通卡" } ] },
+        { "template": "How much is {}?", "zh": "{}多少錢？", "alts": ["How much does {} cost?"], "tip": "問票價。",
+          "options": [ { "en": "a ticket", "zh": "一張票" }, { "en": "a ticket to the airport", "zh": "到機場的票" }, { "en": "the day pass", "zh": "一日券" } ] }
+      ],
+      "questions": [
+        { "en": "Take the blue line.", "alts": ["You need the blue line."],
+          "choices": ["搭藍線", "搭紅線", "走藍色的門"], "answer": 0,
+          "replies": [ { "en": "The blue line. Thank you!", "zh": "藍線，謝謝！" }, { "en": "Where is the blue line?", "zh": "藍線在哪裡？" } ] },
+        { "en": "Change trains at Central Station.", "alts": ["Transfer at Central Station."],
+          "choices": ["在中央車站換車", "在中央車站下車", "在中央車站買票"], "answer": 0,
+          "replies": [ { "en": "OK, change at Central Station.", "zh": "好，在中央車站換車。" }, { "en": "How many stops is it?", "zh": "要坐幾站？" } ] },
+        { "en": "Get off at the next stop.", "alts": ["Your stop is next."],
+          "choices": ["下一站下車", "下一站上車", "下一站很遠"], "answer": 0,
+          "replies": [ { "en": "Thank you!", "zh": "謝謝！" }, { "en": "Thanks for telling me.", "zh": "謝謝你告訴我。" } ] },
+        { "en": "Please tap your card here.", "alts": ["Scan your card here, please."],
+          "choices": ["請在這裡感應你的卡", "請在這裡買卡", "請把卡給我"], "answer": 0,
+          "replies": [ { "en": "OK.", "zh": "好的。" }, { "en": "It doesn't work.", "zh": "不能用耶。", "alts": ["My card isn't working."] } ] }
+      ]
+    },
+    {
+      "id": "taxi",
+      "title": "搭計程車",
+      "emoji": "🚕",
+      "desc": "說目的地、停車、付錢",
+      "roles": { "staff": { "name": "司機", "emoji": "🚕" } },
+      "dialogue": [
+        { "role": "staff", "en": "Hi. Where to?", "zh": "你好，要去哪裡？", "alts": ["Where would you like to go?"] },
+        { "role": "customer", "en": "To the City Hotel, please.", "zh": "請到城市飯店。", "alts": ["Please take me to the City Hotel.", "City Hotel, please."] },
+        { "role": "staff", "en": "OK. Please fasten your seat belt.", "zh": "好的，請繫上安全帶。" },
+        { "role": "customer", "en": "How long will it take?", "zh": "要多久時間？", "alts": ["How long does it take to get there?"] },
+        { "role": "staff", "en": "About twenty minutes.", "zh": "大約二十分鐘。" },
+        { "role": "customer", "en": "Can you stop here, please?", "zh": "可以在這裡停嗎？", "alts": ["Please stop here."] },
+        { "role": "staff", "en": "Sure. That's fifteen dollars.", "zh": "好的，一共十五元。" },
+        { "role": "customer", "en": "Here you are. Thank you.", "zh": "給你，謝謝。", "alts": ["Here you go. Thanks."] }
+      ],
+      "patterns": [
+        { "template": "To {}, please.", "zh": "請到{}。", "alts": ["Please take me to {}."], "tip": "上車直接說目的地。也可以給司機看手機上的地址。",
+          "options": [ { "en": "the airport", "zh": "機場" }, { "en": "this address", "zh": "這個地址" }, { "en": "the City Hotel", "zh": "城市飯店" }, { "en": "the train station", "zh": "火車站" } ] },
+        { "template": "Can you {}, please?", "zh": "可以請你{}嗎？", "alts": ["Could you {}?"], "tip": "請司機幫忙。",
+          "options": [ { "en": "stop here", "zh": "在這裡停" }, { "en": "turn on the meter", "zh": "跳表" }, { "en": "open the trunk", "zh": "打開後車廂" }, { "en": "wait for me", "zh": "等我一下" } ] },
+        { "template": "How much is it to {}?", "zh": "到{}要多少錢？", "alts": ["How much to {}?"], "tip": "上車前先問價錢。",
+          "options": [ { "en": "the airport", "zh": "機場" }, { "en": "the hotel", "zh": "飯店" }, { "en": "downtown", "zh": "市區" } ] }
+      ],
+      "questions": [
+        { "en": "Where to?", "alts": ["Where would you like to go?", "Where are you going?"],
+          "choices": ["要去哪裡？", "從哪裡來？", "要坐哪裡？"], "answer": 0,
+          "replies": [ { "en": "To the City Hotel, please.", "zh": "請到城市飯店。", "alts": ["City Hotel, please."] }, { "en": "To this address, please.", "zh": "請到這個地址。（給司機看）" } ] },
+        { "en": "Please fasten your seat belt.", "alts": ["Seat belt, please."],
+          "choices": ["請繫上安全帶", "請關上車門", "請把東西放後車廂"], "answer": 0,
+          "replies": [ { "en": "OK.", "zh": "好的。" }, { "en": "Sure, sorry.", "zh": "好，抱歉。" } ] },
+        { "en": "Is here OK?", "alts": ["Can I drop you here?"],
+          "choices": ["停在這裡可以嗎？", "你要在這裡吃嗎？", "這裡很遠嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, here is fine.", "zh": "可以，這裡就好。" }, { "en": "A little further, please.", "zh": "再往前一點，謝謝。" } ] },
+        { "en": "Do you need a receipt?", "alts": ["Would you like a receipt?"],
+          "choices": ["你需要收據嗎？", "你需要零錢嗎？", "你需要袋子嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, please.", "zh": "要，謝謝。" }, { "en": "No, thank you.", "zh": "不用，謝謝。" } ] }
+      ]
+    }
+  ]
+}

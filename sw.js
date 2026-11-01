@@ -4,12 +4,12 @@
  * 策略：Network-first（有網路就拿最新版並更新快取；
  *       沒網路或網路太慢就用快取）
  *
- * ⚠️ 新增檔案（例如新場景 data/airport.json）時：
+ * ⚠️ 新增檔案（例如新場景 data/beach.json）時：
  *    1. 把檔名加進下面的 APP_FILES
  *    2. 把 CACHE_VERSION 的數字加 1
  * ========================================================= */
 
-const CACHE_VERSION = 'travel-english-v1';
+const CACHE_VERSION = 'travel-english-v2';
 
 const APP_FILES = [
   './',
@@ -21,7 +21,11 @@ const APP_FILES = [
   './js/speech.js',
   './js/score.js',
   './data/scenes.json',
-  './data/ordering.json',
+  './data/restaurant.json',
+  './data/airport.json',
+  './data/directions.json',
+  './data/hotel.json',
+  './data/shopping.json',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',

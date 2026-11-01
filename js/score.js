@@ -17,36 +17,40 @@ const CONTRACTIONS = {
   "let's": 'let us', "we'd": 'we would', "we're": 'we are', "they're": 'they are',
 };
 
-// 同義寫法統一
-const ALIASES = { okay: 'ok', 'o.k.': 'ok', hi: 'hi', hey: 'hi', hello: 'hello' };
+// 同義寫法統一（值可以是多個字）
+const ALIASES = { okay: ['ok'], hey: ['hi'], zero: ['oh'], wifi: ['wi', 'fi'], aircon: ['air', 'conditioner'] };
 
 const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
   'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+const ORDINALS = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth',
+  'eleventh', 'twelfth'];
 
-// 0–99 的數字轉英文
-function numberToWords(n) {
+// 數字轉英文字：0–99 照一般唸法；三位數（例如房號 502）一個一個唸，0 唸 oh
+function numberToWords(str) {
+  const n = Number(str);
+  if (str.length === 3) return str.split('').map((d) => (d === '0' ? 'oh' : ONES[d])).join(' ');
   if (n < 20) return ONES[n];
   if (n < 100) return TENS[Math.floor(n / 10)] + (n % 10 ? ' ' + ONES[n % 10] : '');
-  return String(n);
+  return str;
 }
 
 /** 把一個字轉成標準化的字串陣列（一個字可能展開成多個） */
 function normalizeWord(raw) {
   let w = raw.toLowerCase().replace(/[’‘`]/g, "'");
-  let prefix = [];
-  // $12 → 12 dollars
-  if (/^\$\d+/.test(w)) {
-    w = w.slice(1);
-    prefix = ['dollars'];
-  }
+  // 有連字號的字拆開處理：twenty-five → twenty five、Wi-Fi → wi fi
+  if (/[a-z0-9]-[a-z0-9]/.test(w)) return w.split('-').flatMap(normalizeWord);
+  const suffix = [];
+  if (/^\$\d/.test(w)) suffix.push('dollars'); // $12 → twelve dollars
+  if (/\d%/.test(w)) suffix.push('percent');   // 10% → ten percent
   w = w.replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, ''); // 去頭尾標點
   if (!w) return [];
   if (CONTRACTIONS[w]) return CONTRACTIONS[w].split(' ');
-  if (ALIASES[w]) return [ALIASES[w]];
-  if (/^\d+$/.test(w)) return [...numberToWords(Number(w)).split(' '), ...prefix];
-  w = w.replace(/'s$/, ''); // kids' / kid's 都當作 kid
-  w = w.replace(/'$/, '');
+  if (ALIASES[w]) return ALIASES[w];
+  const ord = w.match(/^(\d+)(st|nd|rd|th)$/); // 5th → fifth
+  if (ord && ORDINALS[Number(ord[1])]) return [ORDINALS[Number(ord[1])]];
+  if (/^\d+$/.test(w)) return [...numberToWords(w).split(' '), ...suffix];
+  w = w.replace(/'s$/, '').replace(/'$/, ''); // kids' / kid's 都當作 kid
   return [w];
 }
 
@@ -55,15 +59,12 @@ export function tokenize(sentence) {
   return sentence
     .split(/\s+/)
     .filter(Boolean)
-    .map((display) => ({ display, norm: normalizeWord(display.replace(/-/g, '')) })); // Wi-Fi → wifi
+    .map((display) => ({ display, norm: normalizeWord(display) }));
 }
 
 /** 把辨識結果轉成標準化字串陣列 */
 function normalizeSpoken(text) {
-  return text
-    .replace(/-/g, '')
-    .split(/\s+/)
-    .flatMap(normalizeWord);
+  return text.split(/\s+/).flatMap(normalizeWord);
 }
 
 /** LCS：回傳 target 中哪些位置有被依序配對到 */

@@ -1,0 +1,125 @@
+{
+  "id": "hotel",
+  "title": "飯店",
+  "roles": {
+    "staff": { "name": "櫃台人員", "emoji": "🛎️" },
+    "customer": { "name": "你", "emoji": "🙋" }
+  },
+  "situations": [
+    {
+      "id": "checkin",
+      "title": "入住",
+      "emoji": "🔑",
+      "desc": "報名字、早餐時間、Wi-Fi",
+      "dialogue": [
+        { "role": "staff", "en": "Good evening. Welcome to City Hotel.", "zh": "晚安，歡迎來到城市飯店。", "alts": ["Hello, how can I help you?"] },
+        { "role": "customer", "en": "Hi. I have a reservation. My name is Chen.", "zh": "你好，我有訂房。我姓陳。", "alts": ["I'd like to check in, please. The name is Chen."] },
+        { "role": "staff", "en": "Can I see your passport, please?", "zh": "可以看一下你的護照嗎？", "alts": ["Passport, please."] },
+        { "role": "customer", "en": "Sure. Here you are.", "zh": "好的，給你。" },
+        { "role": "staff", "en": "Your room is on the fifth floor.", "zh": "你的房間在五樓。" },
+        { "role": "customer", "en": "What time is breakfast?", "zh": "早餐是幾點？", "alts": ["When is breakfast?"] },
+        { "role": "staff", "en": "From seven to ten, on the second floor.", "zh": "七點到十點，在二樓。" },
+        { "role": "customer", "en": "What is the Wi-Fi password?", "zh": "無線網路密碼是什麼？", "alts": ["How do I connect to the Wi-Fi?"] },
+        { "role": "staff", "en": "It's on your key card.", "zh": "寫在你的房卡上。" }
+      ],
+      "patterns": [
+        { "template": "I'd like to {}.", "zh": "我想要{}。", "alts": ["Can I {}?"], "tip": "到櫃台要辦什麼事都能用。",
+          "options": [ { "en": "check in", "zh": "入住" }, { "en": "check out", "zh": "退房" }, { "en": "stay one more night", "zh": "多住一晚" }, { "en": "change rooms", "zh": "換房間" } ] },
+        { "template": "What time is {}?", "zh": "{}是幾點？", "alts": ["When is {}?"], "tip": "問時間。",
+          "options": [ { "en": "breakfast", "zh": "早餐" }, { "en": "check-out", "zh": "退房時間" }, { "en": "check-in", "zh": "入住時間" } ] },
+        { "template": "Where is {}?", "zh": "{}在哪裡？", "tip": "在飯店裡找地方。",
+          "options": [ { "en": "the elevator", "zh": "電梯" }, { "en": "the gym", "zh": "健身房" }, { "en": "the swimming pool", "zh": "游泳池" }, { "en": "the restaurant", "zh": "餐廳" } ] }
+      ],
+      "questions": [
+        { "en": "Do you have a reservation?", "alts": ["Did you book a room?"],
+          "choices": ["你有訂房嗎？", "你要退房嗎？", "你要幾間房？"], "answer": 0,
+          "replies": [ { "en": "Yes, under Chen.", "zh": "有，用「陳」的名字訂的。", "alts": ["Yes, my name is Chen."] }, { "en": "No. Do you have a room for tonight?", "zh": "沒有，今晚有空房嗎？" } ] },
+        { "en": "Can I see your passport?", "alts": ["Passport, please."],
+          "choices": ["可以看你的護照嗎？", "可以看你的房卡嗎？", "可以給我你的電話嗎？"], "answer": 0,
+          "replies": [ { "en": "Sure. Here you are.", "zh": "好的，給你。", "alts": ["Here it is."] } ] },
+        { "en": "Breakfast is from seven to ten.", "alts": ["We serve breakfast from seven to ten."],
+          "choices": ["早餐從七點到十點", "早餐要十塊錢", "早餐在十樓"], "answer": 0,
+          "replies": [ { "en": "Where is it?", "zh": "在哪裡？" }, { "en": "Great, thank you.", "zh": "太好了，謝謝。" } ] },
+        { "en": "Your room is on the fifth floor.", "alts": ["Take the elevator to the fifth floor."],
+          "choices": ["你的房間在五樓", "你的房間是五號", "你住五個晚上"], "answer": 0,
+          "replies": [ { "en": "Where is the elevator?", "zh": "電梯在哪裡？" }, { "en": "Thank you.", "zh": "謝謝。" } ] }
+      ]
+    },
+    {
+      "id": "requests",
+      "title": "需要幫忙",
+      "emoji": "🧺",
+      "desc": "要毛巾、東西壞了、叫醒服務",
+      "dialogue": [
+        { "role": "staff", "en": "Front desk. How can I help you?", "zh": "櫃台您好，有什麼需要幫忙的嗎？", "alts": ["Hello, this is the front desk."] },
+        { "role": "customer", "en": "Hi. Can I have two more towels, please?", "zh": "你好，可以再給我兩條毛巾嗎？", "alts": ["Could you bring me two more towels?"] },
+        { "role": "staff", "en": "Sure. Anything else?", "zh": "好的，還需要別的嗎？" },
+        { "role": "customer", "en": "Yes. The air conditioner is not working.", "zh": "有，冷氣壞了。", "alts": ["The air conditioner is broken."] },
+        { "role": "staff", "en": "Sorry about that. We will send someone up.", "zh": "很抱歉，我們會派人上去。", "alts": ["Someone will come to fix it."] },
+        { "role": "customer", "en": "Also, can I get a wake-up call at seven?", "zh": "還有，可以七點叫我起床嗎？", "alts": ["Please call me at seven tomorrow morning."] },
+        { "role": "staff", "en": "No problem.", "zh": "沒問題。", "alts": ["Sure thing."] },
+        { "role": "customer", "en": "Thank you very much.", "zh": "非常謝謝你。" }
+      ],
+      "patterns": [
+        { "template": "Can I have {}, please?", "zh": "可以給我{}嗎？", "alts": ["Could you bring me {}?"], "tip": "房間缺東西時打電話給櫃台。",
+          "options": [ { "en": "more towels", "zh": "更多毛巾" }, { "en": "an extra pillow", "zh": "多一個枕頭" }, { "en": "some water", "zh": "一些水" }, { "en": "a toothbrush", "zh": "牙刷" } ] },
+        { "template": "The {} is not working.", "zh": "{}壞了。", "alts": ["The {} is broken."], "tip": "not working 就是「不能用、壞了」。",
+          "options": [ { "en": "air conditioner", "zh": "冷氣" }, { "en": "TV", "zh": "電視" }, { "en": "shower", "zh": "蓮蓬頭" }, { "en": "light", "zh": "燈" } ] },
+        { "template": "There is no {} in my room.", "zh": "我房間裡沒有{}。", "tip": "缺什麼就說什麼。",
+          "options": [ { "en": "toilet paper", "zh": "衛生紙" }, { "en": "hot water", "zh": "熱水" }, { "en": "soap", "zh": "肥皂" }, { "en": "shampoo", "zh": "洗髮精" } ] }
+      ],
+      "questions": [
+        { "en": "How can I help you?", "alts": ["What can I do for you?"],
+          "choices": ["有什麼需要幫忙的嗎？", "你住哪一間？", "你要退房嗎？"], "answer": 0,
+          "replies": [ { "en": "Can I have more towels, please?", "zh": "可以給我更多毛巾嗎？" }, { "en": "The TV is not working.", "zh": "電視壞了。", "alts": ["The TV is broken."] } ] },
+        { "en": "What is your room number?", "alts": ["Which room are you in?"],
+          "choices": ["你的房號是幾號？", "你的電話是幾號？", "你住幾晚？"], "answer": 0,
+          "replies": [ { "en": "Room five-oh-two.", "zh": "502 號房。", "alts": ["I'm in room five-oh-two."] } ] },
+        { "en": "We'll send someone up right away.", "alts": ["Someone will be there soon."],
+          "choices": ["我們馬上派人上去", "我們明天再修", "我們沒有人"], "answer": 0,
+          "replies": [ { "en": "Thank you.", "zh": "謝謝。" }, { "en": "How long will it take?", "zh": "要多久？" } ] },
+        { "en": "Would you like a wake-up call?", "alts": ["Do you need a morning call?"],
+          "choices": ["你需要叫醒服務嗎？", "你需要計程車嗎？", "你需要早餐嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, at seven, please.", "zh": "好，七點，謝謝。" }, { "en": "No, thank you.", "zh": "不用，謝謝。" } ] }
+      ]
+    },
+    {
+      "id": "checkout",
+      "title": "退房",
+      "emoji": "🧾",
+      "desc": "退房、寄放行李、叫車",
+      "dialogue": [
+        { "role": "customer", "en": "Hi. I'd like to check out, please.", "zh": "你好，我要退房。", "alts": ["Check out, please.", "Can I check out now?"] },
+        { "role": "staff", "en": "Sure. What is your room number?", "zh": "好的，你的房號是幾號？" },
+        { "role": "customer", "en": "Room five-oh-two. Here is my key card.", "zh": "502 號房。這是我的房卡。", "alts": ["Five-oh-two. Here's the key."] },
+        { "role": "staff", "en": "Did you take anything from the minibar?", "zh": "你有拿房間小冰箱裡的東西嗎？", "alts": ["Did you use the minibar?"] },
+        { "role": "customer", "en": "Yes, one bottle of water.", "zh": "有，一瓶水。", "alts": ["I had one water."] },
+        { "role": "customer", "en": "Can I leave my bags here until three?", "zh": "我可以把行李寄放在這裡到三點嗎？", "alts": ["Can you keep my bags until three?"] },
+        { "role": "staff", "en": "Of course. Here is your ticket.", "zh": "當然可以，這是你的寄物牌。" },
+        { "role": "customer", "en": "Thank you. I had a great stay!", "zh": "謝謝，我住得很開心！", "alts": ["Thanks for everything!"] }
+      ],
+      "patterns": [
+        { "template": "I'd like to check out {}.", "zh": "我想要{}退房。", "alts": ["Can I check out {}?"], "tip": "想晚一點退房可以問問看。",
+          "options": [ { "en": "now", "zh": "現在" }, { "en": "late", "zh": "晚一點" }, { "en": "at noon", "zh": "中午" } ] },
+        { "template": "Can I leave my bags here {}?", "zh": "我可以把行李寄放在這裡{}嗎？", "alts": ["Can you keep my bags {}?"], "tip": "退房後還想出去玩，就先寄放行李。",
+          "options": [ { "en": "until three", "zh": "到三點" }, { "en": "for two hours", "zh": "兩個小時" }, { "en": "until tonight", "zh": "到今晚" } ] },
+        { "template": "Can you call {} for me?", "zh": "可以幫我叫{}嗎？", "alts": ["Could you get {} for me?"], "tip": "請櫃台幫忙叫車。",
+          "options": [ { "en": "a taxi", "zh": "計程車" }, { "en": "a taxi to the airport", "zh": "到機場的計程車" }, { "en": "a big taxi", "zh": "大台的計程車" } ] }
+      ],
+      "questions": [
+        { "en": "Did you use the minibar?", "alts": ["Did you take anything from the fridge?"],
+          "choices": ["你有用房間冰箱的東西嗎？", "你有用游泳池嗎？", "你有吃早餐嗎？"], "answer": 0,
+          "replies": [ { "en": "No, I didn't.", "zh": "沒有。" }, { "en": "Yes, one bottle of water.", "zh": "有，一瓶水。" } ] },
+        { "en": "How was your stay?", "alts": ["Did you enjoy your stay?"],
+          "choices": ["住得還好嗎？", "你要住多久？", "你要去哪裡？"], "answer": 0,
+          "replies": [ { "en": "It was great, thank you!", "zh": "很好，謝謝！", "alts": ["I had a great stay!"] }, { "en": "Very nice.", "zh": "非常好。" } ] },
+        { "en": "Would you like me to call a taxi?", "alts": ["Do you need a taxi?"],
+          "choices": ["要幫你叫計程車嗎？", "你要搭公車嗎？", "你有車嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, please. To the airport.", "zh": "好，麻煩了，去機場。" }, { "en": "No, thank you. I'll walk.", "zh": "不用，謝謝，我走路。" } ] },
+        { "en": "You can pick up your bags anytime.", "alts": ["Come back for your bags anytime."],
+          "choices": ["你隨時可以來拿行李", "你的行李不見了", "寄放行李要付錢"], "answer": 0,
+          "replies": [ { "en": "Great, thank you.", "zh": "太好了，謝謝。" }, { "en": "I'll be back at three.", "zh": "我三點回來。" } ] }
+      ]
+    }
+  ]
+}

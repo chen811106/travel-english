@@ -1,0 +1,132 @@
+{
+  "id": "airport",
+  "title": "機場",
+  "roles": {
+    "staff": { "name": "地勤人員", "emoji": "🧑‍✈️" },
+    "customer": { "name": "你", "emoji": "🙋" }
+  },
+  "situations": [
+    {
+      "id": "checkin",
+      "title": "報到劃位",
+      "emoji": "🧳",
+      "desc": "報到、托運行李、選座位",
+      "dialogue": [
+        { "role": "staff", "en": "Good morning. Can I see your passport, please?", "zh": "早安。可以看一下你的護照嗎？", "alts": ["Passport, please."] },
+        { "role": "customer", "en": "Sure. Here you are.", "zh": "好的，給你。", "alts": ["Here it is."] },
+        { "role": "staff", "en": "Where are you flying today?", "zh": "你今天要飛去哪裡？", "alts": ["What is your destination?"] },
+        { "role": "customer", "en": "I'm going to Tokyo.", "zh": "我要去東京。", "alts": ["To Tokyo, please."] },
+        { "role": "staff", "en": "Do you have any bags to check?", "zh": "你有行李要托運嗎？", "alts": ["Are you checking any bags?"] },
+        { "role": "customer", "en": "Yes, just one.", "zh": "有，只有一件。", "alts": ["One bag, please."] },
+        { "role": "staff", "en": "Would you like a window or aisle seat?", "zh": "你要靠窗還是靠走道的位子？", "alts": ["Window or aisle?"] },
+        { "role": "customer", "en": "A window seat, please.", "zh": "靠窗，謝謝。", "alts": ["Window, please."] },
+        { "role": "staff", "en": "Here is your boarding pass. Gate twelve.", "zh": "這是你的登機證，在十二號登機門。" },
+        { "role": "customer", "en": "Thank you very much.", "zh": "非常謝謝你。", "alts": ["Thanks a lot."] }
+      ],
+      "patterns": [
+        { "template": "Can I have {}, please?", "zh": "可以給我{}嗎？", "alts": ["I'd like {}, please."], "tip": "選座位時用。",
+          "options": [ { "en": "a window seat", "zh": "靠窗的位子" }, { "en": "an aisle seat", "zh": "靠走道的位子" }, { "en": "seats together", "zh": "坐在一起的位子" } ] },
+        { "template": "Where is {}?", "zh": "{}在哪裡？", "alts": ["How do I get to {}?"], "tip": "在機場找地方。",
+          "options": [ { "en": "gate twelve", "zh": "十二號登機門" }, { "en": "the check-in counter", "zh": "報到櫃台" }, { "en": "the restroom", "zh": "廁所" }, { "en": "the duty-free shop", "zh": "免稅店" } ] },
+        { "template": "Is my flight {}?", "zh": "我的班機{}嗎？", "alts": ["Is the flight {}?"], "tip": "確認班機狀況。",
+          "options": [ { "en": "on time", "zh": "準時" }, { "en": "delayed", "zh": "延誤了" }, { "en": "cancelled", "zh": "取消了" } ] }
+      ],
+      "questions": [
+        { "en": "Do you have any bags to check?", "alts": ["Are you checking any bags?"],
+          "choices": ["你有行李要托運嗎？", "你的行李在哪裡？", "你要買袋子嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, one bag.", "zh": "有，一件。" }, { "en": "No, just this carry-on.", "zh": "沒有，只有這個隨身行李。", "alts": ["No, only hand luggage."] } ] },
+        { "en": "Window or aisle?", "alts": ["Would you like a window or aisle seat?"],
+          "choices": ["要靠窗還是靠走道？", "要坐前面還是後面？", "要去還是回來？"], "answer": 0,
+          "replies": [ { "en": "Window, please.", "zh": "靠窗，謝謝。", "alts": ["A window seat, please."] }, { "en": "Aisle, please.", "zh": "靠走道，謝謝。" } ] },
+        { "en": "Your bag is overweight.", "alts": ["Your bag is too heavy."],
+          "choices": ["你的行李超重了", "你的行李不見了", "你的行李很漂亮"], "answer": 0,
+          "replies": [ { "en": "How much extra?", "zh": "要加多少錢？", "alts": ["How much do I need to pay?"] }, { "en": "Can I take something out?", "zh": "我可以拿一些東西出來嗎？" } ] },
+        { "en": "Boarding starts at nine thirty.", "alts": ["Please be at the gate by nine thirty."],
+          "choices": ["九點半開始登機", "九點半起飛", "九點半到東京"], "answer": 0,
+          "replies": [ { "en": "OK, thank you.", "zh": "好的，謝謝。" }, { "en": "Which gate?", "zh": "哪個登機門？", "alts": ["Where is the gate?"] } ] }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "安檢",
+      "emoji": "🛂",
+      "desc": "放籃子、拿出電腦、液體",
+      "roles": { "staff": { "name": "安檢人員", "emoji": "👮" } },
+      "dialogue": [
+        { "role": "staff", "en": "Please put your bag in the tray.", "zh": "請把你的包包放進籃子裡。", "alts": ["Bags in the tray, please."] },
+        { "role": "customer", "en": "Do I need to take out my laptop?", "zh": "我需要把筆電拿出來嗎？", "alts": ["Should I take out my computer?"] },
+        { "role": "staff", "en": "Yes, please. And your phone, too.", "zh": "是的，還有你的手機也要。" },
+        { "role": "staff", "en": "Do you have any liquids?", "zh": "你有帶液體嗎？", "alts": ["Any water or drinks in your bag?"] },
+        { "role": "customer", "en": "Just a small bottle of lotion.", "zh": "只有一小瓶乳液。", "alts": ["I only have some lotion."] },
+        { "role": "staff", "en": "Please take off your shoes.", "zh": "請把鞋子脫掉。", "alts": ["Shoes off, please."] },
+        { "role": "customer", "en": "OK. Can I go now?", "zh": "好的。我可以走了嗎？", "alts": ["Am I done?"] },
+        { "role": "staff", "en": "Yes, have a nice flight!", "zh": "可以，祝你旅途愉快！" }
+      ],
+      "patterns": [
+        { "template": "Do I need to take out {}?", "zh": "我需要把{}拿出來嗎？", "alts": ["Should I take out {}?"], "tip": "不確定要不要拿出來，就問一下。",
+          "options": [ { "en": "my laptop", "zh": "筆電" }, { "en": "my phone", "zh": "手機" }, { "en": "my water bottle", "zh": "水壺" }, { "en": "my wallet", "zh": "錢包" } ] },
+        { "template": "Do I need to take off {}?", "zh": "我需要脫掉{}嗎？", "alts": ["Should I take off {}?"], "tip": "take off 是「脫掉」。",
+          "options": [ { "en": "my shoes", "zh": "鞋子" }, { "en": "my jacket", "zh": "外套" }, { "en": "my belt", "zh": "皮帶" }, { "en": "my hat", "zh": "帽子" } ] },
+        { "template": "Can I bring {}?", "zh": "我可以帶{}嗎？", "alts": ["Is it OK to bring {}?"], "tip": "問東西能不能帶上飛機。",
+          "options": [ { "en": "this", "zh": "這個" }, { "en": "water", "zh": "水" }, { "en": "a power bank", "zh": "行動電源" }, { "en": "scissors", "zh": "剪刀" } ] }
+      ],
+      "questions": [
+        { "en": "Do you have any liquids?", "alts": ["Any water in your bag?"],
+          "choices": ["你有帶液體嗎？", "你要喝水嗎？", "你有帶電腦嗎？"], "answer": 0,
+          "replies": [ { "en": "No, I don't.", "zh": "沒有。" }, { "en": "Just a small bottle.", "zh": "只有一小瓶。" } ] },
+        { "en": "Please take off your shoes.", "alts": ["Shoes off, please."],
+          "choices": ["請把鞋子脫掉", "請把鞋子穿上", "請把包包打開"], "answer": 0,
+          "replies": [ { "en": "OK.", "zh": "好的。" }, { "en": "Do I need to take off my jacket, too?", "zh": "外套也要脫嗎？" } ] },
+        { "en": "Is this your bag?", "alts": ["Whose bag is this?"],
+          "choices": ["這是你的包包嗎？", "你的包包在哪裡？", "你要買包包嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, it's mine.", "zh": "對，是我的。", "alts": ["Yes, that's my bag."] }, { "en": "No, it's not mine.", "zh": "不是我的。" } ] },
+        { "en": "Please open your bag.", "alts": ["Can you open this bag for me?"],
+          "choices": ["請打開你的包包", "請關上你的包包", "請拿著你的包包"], "answer": 0,
+          "replies": [ { "en": "Sure.", "zh": "好的。" }, { "en": "Is there a problem?", "zh": "有什麼問題嗎？" } ] }
+      ]
+    },
+    {
+      "id": "immigration",
+      "title": "入境審查",
+      "emoji": "🛃",
+      "desc": "來的目的、待幾天、住哪裡",
+      "roles": { "staff": { "name": "海關人員", "emoji": "👮" } },
+      "dialogue": [
+        { "role": "staff", "en": "Hello. Passport, please.", "zh": "你好，請給我護照。", "alts": ["May I see your passport?"] },
+        { "role": "customer", "en": "Here you are.", "zh": "給你。", "alts": ["Here it is."] },
+        { "role": "staff", "en": "What is the purpose of your visit?", "zh": "你來這裡的目的是什麼？", "alts": ["Why are you visiting?", "Business or pleasure?"] },
+        { "role": "customer", "en": "I'm here for sightseeing.", "zh": "我是來觀光的。", "alts": ["I'm on vacation.", "For travel."] },
+        { "role": "staff", "en": "How long will you stay?", "zh": "你會待多久？", "alts": ["How many days are you staying?"] },
+        { "role": "customer", "en": "Five days.", "zh": "五天。", "alts": ["About five days."] },
+        { "role": "staff", "en": "Where are you staying?", "zh": "你住在哪裡？", "alts": ["What is your hotel?"] },
+        { "role": "customer", "en": "At the City Hotel.", "zh": "住在城市飯店。", "alts": ["I'm staying at the City Hotel."] },
+        { "role": "staff", "en": "OK. Enjoy your trip.", "zh": "好的，祝你玩得愉快。", "alts": ["Welcome. Have a good time."] }
+      ],
+      "patterns": [
+        { "template": "I'm here for {}.", "zh": "我是來{}的。", "alts": ["I came for {}."], "tip": "海關一定會問你來做什麼。",
+          "options": [ { "en": "sightseeing", "zh": "觀光" }, { "en": "a holiday", "zh": "度假" }, { "en": "business", "zh": "出差" }, { "en": "visiting family", "zh": "探親" } ] },
+        { "template": "I'm staying for {}.", "zh": "我要待{}。", "alts": ["About {}."], "tip": "回答要待多久。",
+          "options": [ { "en": "five days", "zh": "五天" }, { "en": "one week", "zh": "一個星期" }, { "en": "two weeks", "zh": "兩個星期" }, { "en": "three nights", "zh": "三個晚上" } ] },
+        { "template": "I'm staying at {}.", "zh": "我住在{}。", "tip": "回答住哪裡，可以直接給他看訂房資料。",
+          "options": [ { "en": "the City Hotel", "zh": "城市飯店" }, { "en": "my friend's house", "zh": "朋友家" }, { "en": "a hotel near the station", "zh": "車站附近的飯店" } ] }
+      ],
+      "questions": [
+        { "en": "What is the purpose of your visit?", "alts": ["Why are you here?", "Business or pleasure?"],
+          "choices": ["你來這裡的目的是什麼？", "你從哪裡來？", "你住在哪裡？"], "answer": 0,
+          "replies": [ { "en": "Sightseeing.", "zh": "觀光。", "alts": ["I'm here for sightseeing."] }, { "en": "Business.", "zh": "出差。", "alts": ["I'm here for work."] } ] },
+        { "en": "How long will you stay?", "alts": ["How many days are you staying?"],
+          "choices": ["你會待多久？", "你什麼時候到的？", "你來過幾次？"], "answer": 0,
+          "replies": [ { "en": "Five days.", "zh": "五天。" }, { "en": "One week.", "zh": "一個星期。", "alts": ["About a week."] } ] },
+        { "en": "Where are you staying?", "alts": ["What is your address here?"],
+          "choices": ["你住在哪裡？", "你要去哪裡？", "你在哪裡工作？"], "answer": 0,
+          "replies": [ { "en": "At the City Hotel.", "zh": "住在城市飯店。", "alts": ["I'm staying at the City Hotel."] }, { "en": "At my friend's house.", "zh": "住朋友家。" } ] },
+        { "en": "Is this your first visit?", "alts": ["Have you been here before?"],
+          "choices": ["這是你第一次來嗎？", "你是一個人來嗎？", "這是你的護照嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, it's my first time.", "zh": "對，第一次。" }, { "en": "No, I came last year.", "zh": "不是，我去年來過。" } ] },
+        { "en": "Are you traveling alone?", "alts": ["Who are you traveling with?"],
+          "choices": ["你是一個人旅行嗎？", "你旅行多久了？", "你喜歡旅行嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, I'm alone.", "zh": "對，一個人。", "alts": ["Just me."] }, { "en": "No, with my family.", "zh": "不是，跟家人一起。" } ] }
+      ]
+    }
+  ]
+}

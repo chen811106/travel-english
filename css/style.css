@@ -131,8 +131,8 @@ h1, h2, h3, h4, p { margin: 0; }
 .bar { height: 14px; background: #f4e9de; border-radius: 99px; overflow: hidden; margin-top: 6px; }
 .bar-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.4s; }
 
-.stats { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.stats li { background: var(--bg); border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; font-size: 0.85rem; color: var(--muted); }
+.stats { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.stats li { background: var(--bg); border-radius: 12px; padding: 8px 2px; text-align: center; display: flex; flex-direction: column; font-size: 0.78rem; color: var(--muted); }
 .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 
 .section-title { font-size: 1.2rem; margin-top: 4px; }
@@ -169,11 +169,12 @@ h1, h2, h3, h4, p { margin: 0; }
   display: flex; align-items: center; gap: 8px;
   padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
 }
-.topbar h1 { font-size: 1.2rem; flex: 1; }
+.topbar h1 { font-size: 1.15rem; flex: 1; line-height: 1.2; }
+.topbar h1 small { display: block; font-size: 0.75rem; opacity: 0.85; font-weight: 600; }
 .back { font-size: 2.2rem; line-height: 1; width: 44px; height: 44px; display: grid; place-items: center; margin-top: -4px; }
 
 .speed { display: flex; background: rgba(255, 255, 255, 0.25); border-radius: 12px; padding: 3px; }
-.speed button { border: none; background: none; color: #fff; padding: 8px 10px; border-radius: 9px; font-size: 0.95rem; font-weight: 700; min-height: 40px; }
+.speed button { border: none; background: none; color: #fff; padding: 8px 8px; border-radius: 9px; font-size: 0.95rem; font-weight: 700; min-height: 40px; }
 .speed button.on { background: #fff; color: var(--primary-dark); }
 
 /* ---------- 下方分頁列 ---------- */
@@ -181,7 +182,7 @@ h1, h2, h3, h4, p { margin: 0; }
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   background: #fff;
   border-top: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(var(--tabs, 4), 1fr);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .tabbar a {
@@ -290,6 +291,59 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .done { text-align: center; display: flex; flex-direction: column; gap: 10px; }
 .done-emoji { font-size: 4rem; }
+
+/* ---------- 選情境頁 ---------- */
+.sit-list { display: flex; flex-direction: column; gap: 12px; }
+.sit-card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 14px; padding: 16px; min-height: 88px;
+  border: 3px solid transparent;
+}
+.sit-card:active { transform: scale(0.98); }
+.sit-card.mix { border-color: var(--secondary); background: #f2f7ff; }
+.sit-emoji { font-size: 2.4rem; flex: none; }
+.sit-body { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sit-title { font-size: 1.2rem; font-weight: 800; }
+.sit-desc { font-size: 0.9rem; color: var(--muted); }
+.sit-body .mini-bar { width: 100%; margin-top: 6px; }
+.sit-pct { font-weight: 800; color: var(--primary-dark); font-size: 1.1rem; }
+.sit-badge { display: inline-block; background: #eef4ff; color: var(--secondary); border-radius: 99px; padding: 0 10px; font-size: 0.8rem; font-weight: 700; vertical-align: middle; }
+.pattern .sit-badge { margin-bottom: 6px; }
+
+/* ---------- 錄音說明、錄音中、再試一次 ---------- */
+.help { background: #fff; border-radius: 14px; border: 2px dashed var(--secondary); padding: 10px 14px; }
+.help summary { font-weight: 800; color: var(--secondary); cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.help ol { margin: 8px 0 4px; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
+
+.listening { display: flex; gap: 12px; align-items: flex-start; margin-top: 16px; padding: 12px; background: var(--bad-bg); border-radius: 14px; }
+.mic-dot { flex: none; width: 18px; height: 18px; margin-top: 4px; border-radius: 50%; background: var(--bad); animation: pulse 1s infinite; }
+.live { color: var(--muted); font-size: 0.95rem; margin-top: 4px; min-height: 1.4em; }
+
+.retry { margin-top: 16px; padding: 14px; background: var(--warn-bg); border-radius: 14px; display: flex; flex-direction: column; gap: 8px; }
+.retry > p:first-child { font-weight: 800; font-size: 1.1rem; }
+
+/* ---------- 其他說法 ---------- */
+.variants { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.variants-title { font-size: 0.9rem; color: var(--muted); font-weight: 700; }
+.variant { text-align: left; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 10px 12px; font-weight: 700; min-height: 48px; }
+.variant.on { border-color: var(--primary); background: #fff4ea; }
+.fb-alt { color: var(--good); font-size: 0.9rem; font-weight: 700; }
+
+.alt-toggle { align-self: inherit; background: none; border: none; color: var(--secondary); font-size: 0.9rem; font-weight: 700; padding: 6px; }
+.alt-list { display: flex; flex-direction: column; gap: 6px; }
+.alt-say { text-align: left; background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: 1rem; min-height: 44px; }
+.alt-say.inline { display: inline-block; margin: 4px 4px 0 0; padding: 4px 10px; min-height: 36px; font-size: 0.95rem; }
+.built .alt-say, .replies .alt-say { width: 100%; margin-top: 6px; }
+.replies .alt-say.inline { width: auto; }
+.pattern-alts { color: var(--secondary); font-size: 0.95rem; margin-top: 4px; }
+.also { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+.reply-group { display: flex; flex-direction: column; }
+.reply-group .also { margin: 4px 4px 0; }
+
+.row.center { justify-content: center; gap: 4px; }
+.asked { margin-top: 4px; }
+.matched { font-size: 1.15rem; font-weight: 800; margin: 4px 0; }
+.quiz .btn.huge + .row, .quiz #rec { margin-top: 12px; }
 
 /* 大螢幕：場景卡片排成 3 欄 */
 @media (min-width: 640px) {

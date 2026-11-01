@@ -1,0 +1,134 @@
+{
+  "id": "shopping",
+  "title": "購物",
+  "roles": {
+    "staff": { "name": "店員", "emoji": "🧑‍💼" },
+    "customer": { "name": "你", "emoji": "🙋" }
+  },
+  "situations": [
+    {
+      "id": "find",
+      "title": "找東西",
+      "emoji": "🔍",
+      "desc": "問有沒有賣、在哪裡、沒有的話怎麼說",
+      "dialogue": [
+        { "role": "staff", "en": "Hi! Can I help you?", "zh": "你好！需要幫忙嗎？", "alts": ["Are you looking for something?"] },
+        { "role": "customer", "en": "Yes. Do you sell this face mask?", "zh": "有。你們有賣這個面膜嗎？（給店員看手機照片）", "alts": ["Do you have this face mask?", "I'm looking for this face mask."] },
+        { "role": "staff", "en": "Sorry, we don't have that one.", "zh": "抱歉，我們沒有那一款。", "alts": ["Sorry, we don't sell it."] },
+        { "role": "customer", "en": "Oh. Do you have something similar?", "zh": "喔，那有類似的嗎？", "alts": ["Is there anything like this?", "What do you recommend?"] },
+        { "role": "staff", "en": "Yes. This one is very popular.", "zh": "有，這款很受歡迎。", "alts": ["Many people buy this one."] },
+        { "role": "customer", "en": "Great! Where can I find it?", "zh": "太好了！我可以去哪裡找？", "alts": ["Where is it?"] },
+        { "role": "staff", "en": "It's in aisle three, on the top shelf.", "zh": "在第三排走道，最上層的架子。", "alts": ["Go to aisle three. It's on the top shelf."] },
+        { "role": "customer", "en": "Also, do you have this shirt in size L?", "zh": "另外，這件衣服有 L 號嗎？", "alts": ["Is there a size L?", "Do you have a bigger size?"] },
+        { "role": "staff", "en": "Let me check. Sorry, it's sold out.", "zh": "我查一下。抱歉，賣完了。", "alts": ["Sorry, we don't have any left."] },
+        { "role": "customer", "en": "That's OK. Thank you for your help!", "zh": "沒關係，謝謝你的幫忙！", "alts": ["No problem. Thanks anyway!"] }
+      ],
+      "patterns": [
+        { "template": "Do you sell {}?", "zh": "你們有賣{}嗎？", "alts": ["Do you have {}?", "I'm looking for {}."], "tip": "找東西的第一句！可以同時給店員看手機上的照片。",
+          "options": [ { "en": "this face mask", "zh": "這個面膜" }, { "en": "sunscreen", "zh": "防曬乳" }, { "en": "this snack", "zh": "這個零食" }, { "en": "phone chargers", "zh": "手機充電器" } ] },
+        { "template": "Where can I find {}?", "zh": "我可以去哪裡找{}？", "alts": ["Where is {}?"], "tip": "店裡有賣，但不知道放在哪裡。",
+          "options": [ { "en": "the sunscreen", "zh": "防曬乳" }, { "en": "the shampoo", "zh": "洗髮精" }, { "en": "the toothpaste", "zh": "牙膏" }, { "en": "this face mask", "zh": "這個面膜" } ] },
+        { "template": "Do you have this in {}?", "zh": "這個有{}嗎？", "alts": ["Can I get this in {}?"], "tip": "問尺寸或顏色。",
+          "options": [ { "en": "size L", "zh": "L 號" }, { "en": "a smaller size", "zh": "小一號" }, { "en": "black", "zh": "黑色" }, { "en": "another color", "zh": "別的顏色" } ] },
+        { "template": "Do you have something {}?", "zh": "有沒有{}的？", "alts": ["Is there anything {}?"], "tip": "沒有你要的，就問有沒有別的選擇。",
+          "options": [ { "en": "similar", "zh": "類似" }, { "en": "cheaper", "zh": "便宜一點" }, { "en": "smaller", "zh": "小一點" }, { "en": "you recommend", "zh": "你推薦" } ] }
+      ],
+      "questions": [
+        { "en": "Can I help you?", "alts": ["Are you looking for something?", "What are you looking for?"],
+          "choices": ["需要幫忙嗎？", "你要結帳嗎？", "你要試穿嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes. Do you sell this face mask?", "zh": "有，你們有賣這個面膜嗎？", "alts": ["I'm looking for this."] }, { "en": "I'm just looking, thanks.", "zh": "我只是看看，謝謝。", "alts": ["Just looking."] } ] },
+        { "en": "It's in aisle three.", "alts": ["Go to aisle three."],
+          "choices": ["在第三排走道", "要等三分鐘", "有三種"], "answer": 0,
+          "replies": [ { "en": "Thank you!", "zh": "謝謝！" }, { "en": "Can you show me?", "zh": "可以帶我去嗎？" } ] },
+        { "en": "Sorry, it's sold out.", "alts": ["Sorry, we don't have any left."],
+          "choices": ["抱歉，賣完了", "抱歉，這個很貴", "抱歉，我們要關門了"], "answer": 0,
+          "replies": [ { "en": "That's OK. Thank you for your help!", "zh": "沒關係，謝謝你的幫忙！", "alts": ["Thanks anyway!"] }, { "en": "Do you have something similar?", "zh": "有類似的嗎？" } ] },
+        { "en": "We don't sell that here.", "alts": ["Sorry, we don't have that."],
+          "choices": ["我們這裡沒有賣那個", "那個就在這裡", "那個很好賣"], "answer": 0,
+          "replies": [ { "en": "Where can I buy it?", "zh": "我可以去哪裡買？" }, { "en": "OK, thank you anyway.", "zh": "好，還是謝謝你。" } ] },
+        { "en": "This one is very popular.", "alts": ["Many people buy this one."],
+          "choices": ["這個很受歡迎", "這個在打折", "這個是新的"], "answer": 0,
+          "replies": [ { "en": "I'll take it.", "zh": "我要買這個。", "alts": ["OK, I'll get this one."] }, { "en": "How much is it?", "zh": "多少錢？" } ] }
+      ]
+    },
+    {
+      "id": "tryon",
+      "title": "試穿",
+      "emoji": "👕",
+      "desc": "試衣間、太大太小、換尺寸",
+      "dialogue": [
+        { "role": "customer", "en": "Excuse me. Can I try this on?", "zh": "不好意思，我可以試穿這件嗎？", "alts": ["Where can I try this on?"] },
+        { "role": "staff", "en": "Sure. The fitting room is over there.", "zh": "當然，試衣間在那邊。", "alts": ["Yes, the fitting room is that way."] },
+        { "role": "staff", "en": "How does it fit?", "zh": "穿起來合身嗎？", "alts": ["Is the size OK?"] },
+        { "role": "customer", "en": "It's a little too small.", "zh": "有點太小。", "alts": ["It's a bit tight."] },
+        { "role": "customer", "en": "Do you have a bigger size?", "zh": "有大一點的尺寸嗎？", "alts": ["Do you have it in a large?"] },
+        { "role": "staff", "en": "Here is a large.", "zh": "這是 L 號。", "alts": ["Try this large one."] },
+        { "role": "customer", "en": "This one fits well. I'll take it.", "zh": "這件很合身，我要買這件。", "alts": ["This is perfect. I'll buy it."] }
+      ],
+      "patterns": [
+        { "template": "Can I try {} on?", "zh": "我可以試穿{}嗎？", "alts": ["Could I try {} on?"], "tip": "try on 是「試穿」。",
+          "options": [ { "en": "this", "zh": "這件" }, { "en": "these shoes", "zh": "這雙鞋" }, { "en": "a smaller one", "zh": "小一號的" }, { "en": "the blue one", "zh": "藍色那件" } ] },
+        { "template": "It's too {}.", "zh": "太{}了。", "alts": ["It's a little {}."], "tip": "說哪裡不合身。",
+          "options": [ { "en": "small", "zh": "小" }, { "en": "big", "zh": "大" }, { "en": "long", "zh": "長" }, { "en": "tight", "zh": "緊" } ] },
+        { "template": "I'll take {}.", "zh": "我要買{}。", "alts": ["I'll buy {}."], "tip": "決定要買的時候說。",
+          "options": [ { "en": "this one", "zh": "這件" }, { "en": "two", "zh": "兩件" }, { "en": "the black one", "zh": "黑色那件" } ] }
+      ],
+      "questions": [
+        { "en": "Would you like to try it on?", "alts": ["Do you want to try it?"],
+          "choices": ["你要試穿嗎？", "你要買嗎？", "你要包起來嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, please.", "zh": "好，謝謝。" }, { "en": "No, thanks.", "zh": "不用，謝謝。" } ] },
+        { "en": "How does it fit?", "alts": ["Is the size OK?"],
+          "choices": ["穿起來合身嗎？", "你喜歡這個顏色嗎？", "你要幾件？"], "answer": 0,
+          "replies": [ { "en": "It's perfect.", "zh": "剛剛好。", "alts": ["It fits well."] }, { "en": "It's too small.", "zh": "太小了。" } ] },
+        { "en": "What size are you?", "alts": ["What size do you need?"],
+          "choices": ["你穿幾號？", "你幾歲？", "你要什麼顏色？"], "answer": 0,
+          "replies": [ { "en": "Medium.", "zh": "中號（M）。", "alts": ["I wear a medium."] }, { "en": "I'm not sure.", "zh": "我不確定。" } ] },
+        { "en": "The fitting room is over there.", "alts": ["You can try it on over there."],
+          "choices": ["試衣間在那邊", "收銀台在那邊", "廁所在那邊"], "answer": 0,
+          "replies": [ { "en": "Thank you.", "zh": "謝謝。" } ] }
+      ]
+    },
+    {
+      "id": "pay",
+      "title": "結帳付款",
+      "emoji": "💳",
+      "desc": "問價錢、折扣、退稅",
+      "dialogue": [
+        { "role": "customer", "en": "How much is this?", "zh": "這個多少錢？", "alts": ["How much does this cost?"] },
+        { "role": "staff", "en": "It's twenty dollars.", "zh": "二十元。", "alts": ["That's twenty dollars."] },
+        { "role": "customer", "en": "Is there a discount?", "zh": "有打折嗎？", "alts": ["Is this on sale?"] },
+        { "role": "staff", "en": "Yes. Buy two and get ten percent off.", "zh": "有，買兩件打九折。" },
+        { "role": "customer", "en": "OK, I'll take two.", "zh": "好，我買兩件。", "alts": ["Then I'll get two."] },
+        { "role": "staff", "en": "Do you need a bag?", "zh": "你需要袋子嗎？", "alts": ["Would you like a bag?"] },
+        { "role": "customer", "en": "No, thanks. Can I pay by card?", "zh": "不用，謝謝。可以刷卡嗎？", "alts": ["No, thanks. Do you take credit cards?"] },
+        { "role": "customer", "en": "Can I get a tax refund?", "zh": "可以退稅嗎？", "alts": ["Is this tax-free?"] },
+        { "role": "staff", "en": "Yes. Please show me your passport.", "zh": "可以，請給我看你的護照。" }
+      ],
+      "patterns": [
+        { "template": "How much is {}?", "zh": "{}多少錢？", "alts": ["How much does {} cost?"], "tip": "問價錢。",
+          "options": [ { "en": "this", "zh": "這個" }, { "en": "this bag", "zh": "這個包包" }, { "en": "the red one", "zh": "紅色那個" }, { "en": "all of this", "zh": "全部" } ] },
+        { "template": "Can I pay {}?", "zh": "我可以{}嗎？", "tip": "問付款方式。",
+          "options": [ { "en": "by card", "zh": "刷卡" }, { "en": "in cash", "zh": "付現金" }, { "en": "with my phone", "zh": "用手機付款" } ] },
+        { "template": "Can I get {}?", "zh": "可以給我{}嗎？", "alts": ["Could I have {}?"], "tip": "結帳時要東西。",
+          "options": [ { "en": "a bag", "zh": "袋子" }, { "en": "a receipt", "zh": "收據" }, { "en": "a tax refund", "zh": "退稅" }, { "en": "a discount", "zh": "折扣" } ] }
+      ],
+      "questions": [
+        { "en": "Do you need a bag?", "alts": ["Would you like a bag?"],
+          "choices": ["你需要袋子嗎？", "你需要收據嗎？", "你需要試穿嗎？"], "answer": 0,
+          "replies": [ { "en": "Yes, please.", "zh": "要，謝謝。" }, { "en": "No, thanks.", "zh": "不用，謝謝。", "alts": ["No, I have one."] } ] },
+        { "en": "Cash or card?", "alts": ["How would you like to pay?"],
+          "choices": ["付現金還是刷卡？", "要一個還是兩個？", "要包裝嗎？"], "answer": 0,
+          "replies": [ { "en": "Card, please.", "zh": "刷卡，謝謝。" }, { "en": "Cash.", "zh": "付現金。" } ] },
+        { "en": "It's on sale today.", "alts": ["It's twenty percent off today."],
+          "choices": ["今天有特價", "今天沒開", "今天賣完了"], "answer": 0,
+          "replies": [ { "en": "Great! I'll take it.", "zh": "太好了！我要買。" }, { "en": "How much is it now?", "zh": "現在多少錢？" } ] },
+        { "en": "Please tap your card here.", "alts": ["Insert your card, please."],
+          "choices": ["請在這裡感應你的卡", "請把卡收起來", "請在這裡簽名"], "answer": 0,
+          "replies": [ { "en": "OK.", "zh": "好的。" } ] },
+        { "en": "Can I see your passport for the tax refund?", "alts": ["Passport, please."],
+          "choices": ["退稅要看你的護照", "你的護照掉了", "你需要辦護照"], "answer": 0,
+          "replies": [ { "en": "Sure. Here you are.", "zh": "好的，給你。" } ] }
+      ]
+    }
+  ]
+}
