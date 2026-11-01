@@ -21,21 +21,36 @@ if (ttsSupported) {
   synth.addEventListener?.('voiceschanged', loadVoices);
 }
 
-// 依角色挑英文語音：優先 en-US，店員和客人盡量用不同聲音
+// 瀏覽器不會告訴我們語音是男是女，只能用各平台常見的語音名稱判斷
+// （iPhone／Mac、Android、Windows、Chrome 內建）
+const MALE = /\b(male|man|david|guy|mark|james|christopher|eric|roger|steffan|ryan|brian|andrew|alex|aaron|fred|daniel|arthur|gordon|oliver|tom|rishi|lee|evan|nathan|reed|rocko|grandpa|eddy)\b|en-us-x-(iol|iom|tpd)/i;
+const FEMALE = /\b(female|woman|samantha|aria|jenny|zira|susan|hazel|libby|sonia|emma|ava|allison|karen|moira|tessa|fiona|victoria|kate|serena|nicky|joelle|zoe|catherine|martha|shelley|sandy|flo|grandma)\b|google us english|en-us-x-(sfg|tpc|tpf|iob|iog)/i;
+
+const isMale = (v) => MALE.test(v.name + ' ' + v.voiceURI) && !/female/i.test(v.name);
+const isFemale = (v) => FEMALE.test(v.name + ' ' + v.voiceURI);
+
+/**
+ * 依角色挑英文語音
+ * - customer（我）：男聲
+ * - staff（店員等）：優先女聲，和「我」有明顯區別
+ * 找不到對應的語音時，用音高調整（男聲調低）
+ * @returns {{voice: SpeechSynthesisVoice|null, pitch: number}}
+ */
 function pickVoice(role) {
   if (!voices.length) loadVoices();
-  const us = voices.filter((v) => /en[-_]US/i.test(v.lang));
-  const pool = us.length ? us : voices;
-  if (!pool.length) return null;
-  // 優先挑音質較好的語音
-  const preferred = ['Google US English', 'Samantha', 'Microsoft Aria', 'Microsoft Jenny', 'Alex'];
-  const sorted = [...pool].sort((a, b) => score(b) - score(a));
-  function score(v) {
-    const i = preferred.findIndex((p) => v.name.includes(p));
-    return (i === -1 ? 0 : 10 - i) + (v.localService ? 1 : 0);
+  // 美式英文優先，其次其他英文（英國、澳洲…）
+  const rank = (v) => (/en[-_]US/i.test(v.lang) ? 2 : 0) + (v.localService ? 1 : 0);
+  const best = (list) => [...list].sort((a, b) => rank(b) - rank(a))[0] || null;
+
+  if (role === 'customer') {
+    const male = best(voices.filter(isMale));
+    if (male) return { voice: male, pitch: 1.0 };
+    // 沒有男聲：用預設語音，把音高調低聽起來像男生
+    return { voice: best(voices.filter((v) => !isFemale(v))) || best(voices), pitch: 0.7 };
   }
-  if (role === 'customer' && sorted.length > 1) return sorted[1];
-  return sorted[0];
+  const female = best(voices.filter(isFemale));
+  if (female) return { voice: female, pitch: 1.0 };
+  return { voice: best(voices.filter((v) => !isMale(v))) || best(voices), pitch: 1.1 };
 }
 
 let speakToken = 0; // 用來中斷「整段播放」
@@ -51,10 +66,12 @@ export function speak(text, { slow = false, role = 'staff' } = {}) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
     u.rate = slow ? RATE_SLOW : RATE_NORMAL;
-    const v = pickVoice(role);
-    if (v) u.voice = v;
-    // 只有一種語音時，用音高區分角色
-    u.pitch = role === 'customer' ? 1.15 : 1.0;
+    const { voice, pitch } = pickVoice(role);
+    if (voice) {
+      u.voice = voice;
+      u.lang = voice.lang;
+    }
+    u.pitch = pitch;
 
     let finished = false;
     const done = (ok) => {

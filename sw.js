@@ -9,7 +9,7 @@
  *    2. 把 CACHE_VERSION 的數字加 1
  * ========================================================= */
 
-const CACHE_VERSION = 'travel-english-v2';
+const CACHE_VERSION = 'travel-english-v3';
 
 const APP_FILES = [
   './',
